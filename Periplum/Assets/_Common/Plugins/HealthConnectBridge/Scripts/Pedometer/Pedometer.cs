@@ -7,7 +7,7 @@ public class Pedometer : Singleton<Pedometer>
 {
     [SerializeField] private HealthConnectAARCaller healthConnect = default;
     [SerializeField] private bool runtimeUpdate = false;
-    [SerializeField, ShowIf(nameof(runtimeUpdate))] private float updateFrequency = 3f;
+    [SerializeField, ShowIf(nameof(runtimeUpdate))] private float updateFrequency = 10f;
 
     private float counter = 0f;
 

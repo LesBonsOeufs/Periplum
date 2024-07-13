@@ -149,8 +149,6 @@ class Plugin
                 lStepsCount = healthClient!!.readRecords(lRequest)
                     .records
                     .sumOf { it.count }
-
-                Log.i("Steps", "boom")
             }
             catch (e: Exception)
             {
