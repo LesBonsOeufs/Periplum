@@ -13,12 +13,17 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 class Plugin
 {
@@ -29,19 +34,21 @@ class Plugin
                 HealthPermission.getReadPermission(StepsRecord::class)
             )
 
-        private var unityActivity: ComponentActivity? = null
+        private var activity: ComponentActivity? = null
         private var healthClient: HealthConnectClient? = null
 
         public fun getAppContext(): Context
         {
-            return unityActivity!!.applicationContext
+            return activity!!.applicationContext
         }
 
-        public fun setUnityActivity(activity: ComponentActivity?) {
-            unityActivity = activity
+        public fun setActivity(activity: ComponentActivity?)
+        {
+            this.activity = activity
         }
 
-        public fun checkAvailability() {
+        public fun checkAvailability()
+        {
             // Checks HealthConnect availability. If not installed but compatible with the device,
             // prompts the user to install it.
             if (HealthConnectClient.sdkStatus(getAppContext()) == HealthConnectClient.SDK_AVAILABLE) {
@@ -59,7 +66,7 @@ class Plugin
                 installHealthConnect()
             }
 
-            unityActivity!!.applicationContext
+            activity!!.applicationContext
         }
 
         private fun installHealthConnect()
@@ -91,7 +98,7 @@ class Plugin
             val lRequestPermissionActivityContract = PermissionController.createRequestPermissionResultContract()
 
             // Asks for all required permissions
-            val lPermissionsRequestLauncher = unityActivity!!.registerForActivityResult(
+            val lPermissionsRequestLauncher = activity!!.registerForActivityResult(
                 lRequestPermissionActivityContract
             ) { granted ->
                 // Permission request result handling
@@ -105,7 +112,14 @@ class Plugin
             lPermissionsRequestLauncher.launch(allPermissions)
         }
 
-        public fun getTodayStepsCount()
+        public fun getTodayStepsCount_ForUnity()
+        {
+            getTodayStepsCount { stepsCount ->
+                UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
+            }
+        }
+
+        public fun getTodayStepsCount(callback: (Long) -> Unit)
         {
             try {
                 GlobalScope.launch(Dispatchers.Main) {
@@ -118,7 +132,7 @@ class Plugin
                         Toast.LENGTH_LONG
                     ).show()
 
-                    UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
+                    callback(stepsCount)
                 }
             }
             catch (e: java.lang.Exception)
@@ -156,6 +170,18 @@ class Plugin
             }
 
             return lStepsCount
+        }
+
+        public fun scheduleStepCountWorker(targetSteps: Int) {
+            val lWorkRequest = PeriodicWorkRequestBuilder<TargetStepsWorker>(15, TimeUnit.MINUTES)
+                .setInputData(workDataOf("target_steps" to targetSteps))
+                .build()
+
+            WorkManager.getInstance(getAppContext()).enqueueUniquePeriodicWork(
+                TargetStepsWorker::class.java.simpleName,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                lWorkRequest
+            )
         }
     }
 }
