@@ -52,7 +52,7 @@ public class UnityPlayerActivity extends ComponentActivity implements IUnityPlay
 
     private void initPlugin()
     {
-        Plugin.Companion.setActivity(this);
+        Plugin.Companion.init(this);
         Plugin.Companion.checkAvailability();
     }
 

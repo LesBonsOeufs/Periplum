@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- <uses-permission android:name="android.permission.health.READ_STEPS"/> -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -25,7 +27,7 @@
             </intent-filter>
             <meta-data android:name="health_permissions" android:resource="@array/health_permissions" />
         </activity>
-
+        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService" />
     </application>
 
     <!-- Check whether Health connect is installed or not -->

@@ -1,5 +1,8 @@
 package com.gabrielbernabeu.hcwforunity
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -7,31 +10,32 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.app.ActivityCompat
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
 
 class Plugin
 {
     companion object
     {
-        private val allPermissions: Set<String> =
+        private val healthPermissions: Set<String> =
             setOf(
-                HealthPermission.getReadPermission(StepsRecord::class)
+                HealthPermission.getReadPermission(StepsRecord::class),
+            )
+
+        private val permissions: Array<String> =
+            arrayOf(
+                Manifest.permission.POST_NOTIFICATIONS
             )
 
         private var activity: ComponentActivity? = null
@@ -42,9 +46,12 @@ class Plugin
             return activity!!.applicationContext
         }
 
-        public fun setActivity(activity: ComponentActivity?)
+        public fun init(activity: ComponentActivity?)
         {
             this.activity = activity
+            val lNotificationManager = getAppContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val lNotificationChannel = NotificationChannel("steps_channel", "Steps Channel", NotificationManager.IMPORTANCE_HIGH)
+            lNotificationManager.createNotificationChannel(lNotificationChannel)
         }
 
         public fun checkAvailability()
@@ -65,8 +72,6 @@ class Plugin
                 Log.e("Availability", "HealthConnect is not installed!")
                 installHealthConnect()
             }
-
-            activity!!.applicationContext
         }
 
         private fun installHealthConnect()
@@ -95,35 +100,39 @@ class Plugin
 
         private fun requestPermissions()
         {
+            //Android permissions
+            ActivityCompat.requestPermissions(activity!!, permissions, 0)
+
+            //Health Connect permissions
             val lRequestPermissionActivityContract = PermissionController.createRequestPermissionResultContract()
 
-            // Asks for all required permissions
             val lPermissionsRequestLauncher = activity!!.registerForActivityResult(
                 lRequestPermissionActivityContract
             ) { granted ->
-                // Permission request result handling
-                if (granted.containsAll(allPermissions)) {
-                    Log.i("Permissions", "All permissions granted!")
+                if (granted.containsAll(healthPermissions)) {
+                    Log.i("Permissions", "All health permissions granted!")
                 } else {
-                    Log.e("Permissions", "Some permissions denied!")
+                    Log.e("Permissions", "Some health permissions denied!")
                 }
             }
 
-            lPermissionsRequestLauncher.launch(allPermissions)
+            lPermissionsRequestLauncher.launch(healthPermissions)
         }
 
         public fun getTodayStepsCount_ForUnity()
         {
-            getTodayStepsCount { stepsCount ->
+            getStepsCountSince (Instant.now().truncatedTo(ChronoUnit.DAYS)) { stepsCount ->
                 UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
             }
         }
 
-        public fun getTodayStepsCount(callback: (Long) -> Unit)
+        public fun getStepsCountSince(instant: Instant, callback: (Long) -> Unit)
         {
-            try {
-                GlobalScope.launch(Dispatchers.Main) {
-                    val stepsCount = tryGetTodayStepsCount()
+            try
+            {
+                GlobalScope.launch(Dispatchers.Main)
+                {
+                    val stepsCount = tryGetStepsCountSince(instant)
 
                     Log.i("Steps", "NSteps: $stepsCount")
 
@@ -145,12 +154,10 @@ class Plugin
             }
         }
 
-        private suspend fun tryGetTodayStepsCount(): Long
+        private suspend fun tryGetStepsCountSince(since: Instant): Long
         {
             var lStepsCount: Long = -1L
-
-            val lToday = Instant.now()
-            val lStartOfDay = lToday.truncatedTo(ChronoUnit.DAYS)
+            val lNow = Instant.now()
 
             Log.i("Steps", "Start reading")
 
@@ -158,7 +165,7 @@ class Plugin
             {
                 val lRequest = ReadRecordsRequest(
                     StepsRecord::class,
-                    TimeRangeFilter.between(lStartOfDay, lToday))
+                    TimeRangeFilter.between(since, lNow))
 
                 lStepsCount = healthClient!!.readRecords(lRequest)
                     .records
@@ -172,16 +179,13 @@ class Plugin
             return lStepsCount
         }
 
-        public fun scheduleStepCountWorker(targetSteps: Int) {
-            val lWorkRequest = PeriodicWorkRequestBuilder<TargetStepsWorker>(15, TimeUnit.MINUTES)
-                .setInputData(workDataOf("target_steps" to targetSteps))
-                .build()
-
-            WorkManager.getInstance(getAppContext()).enqueueUniquePeriodicWork(
-                TargetStepsWorker::class.java.simpleName,
-                ExistingPeriodicWorkPolicy.REPLACE,
-                lWorkRequest
-            )
+        public fun startTargetStepsService(targetSteps: Int, since: Instant)
+        {
+            Intent(getAppContext(), TargetStepsService::class.java).also {
+                it.putExtra("target_steps", targetSteps)
+                it.putExtra("since", since.toString())
+                activity!!.startService(it)
+            }
         }
     }
 }
