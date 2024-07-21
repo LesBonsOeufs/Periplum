@@ -20,7 +20,6 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -112,6 +111,9 @@ class Plugin
 
         public fun startTargetStepsService(targetSteps: Int)
         {
+            if (TargetStepsService.isRunning)
+                return;
+
             Intent(getAppContext(), TargetStepsService::class.java).also {
                 it.putExtra("target_steps", targetSteps)
                 it.putExtra("since", Instant.now().toString())

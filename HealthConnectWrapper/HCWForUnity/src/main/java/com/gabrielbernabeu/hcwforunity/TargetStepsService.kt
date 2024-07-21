@@ -11,6 +11,12 @@ import java.time.Instant
 
 class TargetStepsService: Service()
 {
+    companion object
+    {
+        var isRunning: Boolean = false
+        private set
+    }
+
     //Milliseconds
     private val interval: Long = 60000
     private lateinit var handler: Handler
@@ -23,6 +29,16 @@ class TargetStepsService: Service()
         return null
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        isRunning = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isRunning = false
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
     {
         targetSteps = intent!!.getIntExtra("target_steps", -1)
@@ -32,10 +48,8 @@ class TargetStepsService: Service()
 
         handler = Handler(mainLooper)
         runnable = object : Runnable {
-            override fun run()
-            {
+            override fun run() {
                 checkTargetSteps()
-                handler.postDelayed(this, interval)
             }
         }
 
@@ -68,15 +82,18 @@ class TargetStepsService: Service()
                 val lNotification = NotificationCompat.Builder(applicationContext, "steps_channel")
                     .setContentTitle("Congratulations!")
                     .setContentText("You have reached your next point!")
-                    .setSmallIcon(androidx.core.R.drawable.notification_bg)
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
                     .build()
 
                 (applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(2, lNotification)
+                handler.removeCallbacks(runnable)
                 stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
             }
             else
             {
                 refreshNotification(stepsCount.toInt())
+                handler.postDelayed(runnable, interval)
             }
         }
     }
