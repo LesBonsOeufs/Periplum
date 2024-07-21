@@ -17,7 +17,8 @@
 			<meta-data android:name="health_permissions" android:resource="@array/health_permissions" />
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
-        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService" />
+        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService"
+				 android:process=":com.gabrielbernabeu.hcwforunity.externalProcess"/>
     </application>
 
 	<!-- Check whether Health connect is installed or not -->

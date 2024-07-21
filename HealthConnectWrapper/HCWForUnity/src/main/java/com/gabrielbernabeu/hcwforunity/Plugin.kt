@@ -90,12 +90,6 @@ class Plugin
                     val stepsCount = tryGetStepsCountSince(instant)
 
                     Log.i("Steps", "NSteps: $stepsCount")
-
-                    Toast.makeText(
-                        getAppContext(), "NSteps: $stepsCount",
-                        Toast.LENGTH_LONG
-                    ).show()
-
                     callback(stepsCount)
                 }
             }

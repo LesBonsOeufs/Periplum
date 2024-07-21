@@ -62,7 +62,6 @@ class TargetStepsService: Service()
     {
         Plugin.getStepsCountSince(since)
         { stepsCount ->
-
             if (stepsCount >= targetSteps)
             {
                 val lNotification = NotificationCompat.Builder(applicationContext, "steps_channel")

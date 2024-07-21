@@ -40,7 +40,8 @@
 
     In <application>, after <activity>:
         
-        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService" />
+        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService"
+				 android:process=":com.gabrielbernabeu.hcwforunity.externalProcess"/>
 
 **Add this to your gradle's properties:**
 
