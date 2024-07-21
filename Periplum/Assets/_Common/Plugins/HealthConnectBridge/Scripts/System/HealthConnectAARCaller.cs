@@ -26,7 +26,7 @@ public class HealthConnectAARCaller : AndroidAARCaller
         todayStepsReceivedCallback = callback;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        Call("getTodayStepsCount_ForUnity");
+        pluginInstance.Call("getTodayStepsCount_ForUnity");
 #else
         todayStepsReceivedCallback?.Invoke(editorTestSteps);
 #endif
@@ -35,7 +35,7 @@ public class HealthConnectAARCaller : AndroidAARCaller
     public void StartTargetStepsService(int targetSteps)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        Call("startTargetStepsService", targetSteps);
+        pluginInstance.Call("startTargetStepsService", targetSteps);
 #endif
     }
 }

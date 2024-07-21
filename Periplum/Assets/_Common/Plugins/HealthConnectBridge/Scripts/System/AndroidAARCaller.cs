@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class AndroidAARCaller : MonoBehaviour
 {
-    private AndroidJavaObject pluginInstance;
+    protected AndroidJavaObject pluginInstance;
 
     protected abstract string PluginFullName { get; }
 
@@ -19,21 +19,5 @@ public abstract class AndroidAARCaller : MonoBehaviour
 
         if (pluginInstance == null)
             Debug.LogError("No plugin instance");
-    }
-
-    public void Call(string methodName, params object[] args)
-    {
-        Call<object>(methodName, args);
-    }
-
-    public void Call<T>(string methodName, params T[] args)
-    {
-        if (pluginInstance != null)
-        {
-            Debug.Log("Plugin exists!");
-            pluginInstance.Call(methodName, args);
-        }
-        else
-            Debug.LogError("Plugin is null!");
     }
 }

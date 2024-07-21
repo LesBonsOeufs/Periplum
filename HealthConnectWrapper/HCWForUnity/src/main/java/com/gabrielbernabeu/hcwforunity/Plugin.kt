@@ -113,7 +113,7 @@ class Plugin
         {
             Intent(getAppContext(), TargetStepsService::class.java).also {
                 it.putExtra("target_steps", targetSteps)
-                it.putExtra("since", Instant.now())
+                it.putExtra("since", Instant.now().toString())
                 activity!!.startService(it)
             }
         }
