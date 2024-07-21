@@ -12,7 +12,7 @@ import java.time.Instant
 class TargetStepsService: Service()
 {
     //Milliseconds
-    private val interval: Long = 3000
+    private val interval: Long = 60000
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
     private var targetSteps: Int = -1

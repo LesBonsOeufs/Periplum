@@ -30,10 +30,17 @@
 
     In <manifest>:
 
+        <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+        <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
         <!-- Check whether Health connect is installed or not -->
         <queries>
             <package android:name="com.google.android.apps.healthdata" />
         </queries>
+
+    In <application>, after <activity>:
+        
+        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService" />
 
 **Add this to your gradle's properties:**
 

@@ -7,6 +7,8 @@ public class HealthConnectAARCaller : AndroidAARCaller
     [SerializeField] private int editorTestSteps = 132;
 #endif
 
+    protected override string PluginFullName => "com.gabrielbernabeu.hcwforunity.Plugin";
+
     private Action<int> todayStepsReceivedCallback;
 
     /// <summary>
@@ -24,9 +26,16 @@ public class HealthConnectAARCaller : AndroidAARCaller
         todayStepsReceivedCallback = callback;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        Call("getTodayStepsCount");
+        Call("getTodayStepsCount_ForUnity");
 #else
         todayStepsReceivedCallback?.Invoke(editorTestSteps);
+#endif
+    }
+
+    public void StartTargetStepsService(int targetSteps)
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Call("startTargetStepsService", targetSteps);
 #endif
     }
 }

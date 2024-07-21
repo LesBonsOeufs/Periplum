@@ -74,6 +74,50 @@ class Plugin
             }
         }
 
+        public fun getTodayStepsCount_ForUnity()
+        {
+            getStepsCountSince (Instant.now().truncatedTo(ChronoUnit.DAYS)) { stepsCount ->
+                UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
+            }
+        }
+
+        public fun getStepsCountSince(instant: Instant, callback: (Long) -> Unit)
+        {
+            try
+            {
+                GlobalScope.launch(Dispatchers.Main)
+                {
+                    val stepsCount = tryGetStepsCountSince(instant)
+
+                    Log.i("Steps", "NSteps: $stepsCount")
+
+                    Toast.makeText(
+                        getAppContext(), "NSteps: $stepsCount",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    callback(stepsCount)
+                }
+            }
+            catch (e: java.lang.Exception)
+            {
+                Toast.makeText(
+                    getAppContext(), "Couldn't get steps count",
+                    Toast.LENGTH_LONG
+                ).show()
+                e.printStackTrace()
+            }
+        }
+
+        public fun startTargetStepsService(targetSteps: Int)
+        {
+            Intent(getAppContext(), TargetStepsService::class.java).also {
+                it.putExtra("target_steps", targetSteps)
+                it.putExtra("since", Instant.now())
+                activity!!.startService(it)
+            }
+        }
+
         private fun installHealthConnect()
         {
             try {
@@ -119,41 +163,6 @@ class Plugin
             lPermissionsRequestLauncher.launch(healthPermissions)
         }
 
-        public fun getTodayStepsCount_ForUnity()
-        {
-            getStepsCountSince (Instant.now().truncatedTo(ChronoUnit.DAYS)) { stepsCount ->
-                UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
-            }
-        }
-
-        public fun getStepsCountSince(instant: Instant, callback: (Long) -> Unit)
-        {
-            try
-            {
-                GlobalScope.launch(Dispatchers.Main)
-                {
-                    val stepsCount = tryGetStepsCountSince(instant)
-
-                    Log.i("Steps", "NSteps: $stepsCount")
-
-                    Toast.makeText(
-                        getAppContext(), "NSteps: $stepsCount",
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    callback(stepsCount)
-                }
-            }
-            catch (e: java.lang.Exception)
-            {
-                Toast.makeText(
-                    getAppContext(), "Couldn't get steps count",
-                    Toast.LENGTH_LONG
-                ).show()
-                e.printStackTrace()
-            }
-        }
-
         private suspend fun tryGetStepsCountSince(since: Instant): Long
         {
             var lStepsCount: Long = -1L
@@ -177,15 +186,6 @@ class Plugin
             }
 
             return lStepsCount
-        }
-
-        public fun startTargetStepsService(targetSteps: Int, since: Instant)
-        {
-            Intent(getAppContext(), TargetStepsService::class.java).also {
-                it.putExtra("target_steps", targetSteps)
-                it.putExtra("since", since.toString())
-                activity!!.startService(it)
-            }
         }
     }
 }

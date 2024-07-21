@@ -3,6 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.unity3d.player"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application>
         <activity android:name="com.gabrielbernabeu.hcwforunity.UnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">
@@ -14,6 +17,7 @@
 			<meta-data android:name="health_permissions" android:resource="@array/health_permissions" />
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
+        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService" />
     </application>
 
 	<!-- Check whether Health connect is installed or not -->

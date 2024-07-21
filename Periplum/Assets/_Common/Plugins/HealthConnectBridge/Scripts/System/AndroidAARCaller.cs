@@ -2,27 +2,23 @@ using UnityEngine;
 
 public abstract class AndroidAARCaller : MonoBehaviour
 {
-    private AndroidJavaClass unityClass;
-    private AndroidJavaObject unityActivity;
     private AndroidJavaObject pluginInstance;
+
+    protected abstract string PluginFullName { get; }
 
     protected void Awake()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        Initialize("com.gabrielbernabeu.hcwforunity.Plugin");
+        Initialize(PluginFullName);
 #endif
     }
 
     private void Initialize(string pluginName)
     {
-        unityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        unityActivity = unityClass.GetStatic<AndroidJavaObject>("currentActivity");
         pluginInstance = new AndroidJavaObject(pluginName).GetStatic<AndroidJavaObject>("Companion");
 
         if (pluginInstance == null)
-        {
-            Debug.Log("Plugin instance error");
-        }
+            Debug.LogError("No plugin instance");
     }
 
     public void Call(string methodName, params object[] args)
@@ -30,7 +26,7 @@ public abstract class AndroidAARCaller : MonoBehaviour
         Call<object>(methodName, args);
     }
 
-    public void Call<T>(string methodName, params object[] args)
+    public void Call<T>(string methodName, params T[] args)
     {
         if (pluginInstance != null)
         {
