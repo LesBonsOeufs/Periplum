@@ -12,6 +12,6 @@ class MainActivity : AppCompatActivity()
         super.onCreate(savedInstanceState)
         Plugin.init(this)
         Plugin.checkAvailability()
-        Plugin.startTargetStepsService(1)
+        Plugin.startTargetStepsService(30)
     }
 }

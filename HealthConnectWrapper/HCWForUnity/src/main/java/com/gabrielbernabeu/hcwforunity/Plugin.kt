@@ -81,16 +81,23 @@ class Plugin
             }
         }
 
-        public fun getStepsCountSince(instant: Instant, callback: (Long) -> Unit)
+        public fun getStepsCountSince(since: Instant, callback: (Long) -> Unit)
         {
             try
             {
                 GlobalScope.launch(Dispatchers.Main)
                 {
-                    val stepsCount = tryGetStepsCountSince(instant)
+                    val lNow = Instant.now()
+                    val lRequest = ReadRecordsRequest(
+                        StepsRecord::class,
+                        TimeRangeFilter.between(since, lNow))
 
-                    Log.i("Steps", "NSteps: $stepsCount")
-                    callback(stepsCount)
+                    val lStepsCount = healthClient!!.readRecords(lRequest)
+                        .records
+                        .sumOf { it.count }
+
+                    Log.i("Steps", "NSteps: $lStepsCount")
+                    callback(lStepsCount)
                 }
             }
             catch (e: java.lang.Exception)
@@ -155,31 +162,6 @@ class Plugin
             }
 
             lPermissionsRequestLauncher.launch(healthPermissions)
-        }
-
-        private suspend fun tryGetStepsCountSince(since: Instant): Long
-        {
-            var lStepsCount: Long = -1L
-            val lNow = Instant.now()
-
-            Log.i("Steps", "Start reading")
-
-            try
-            {
-                val lRequest = ReadRecordsRequest(
-                    StepsRecord::class,
-                    TimeRangeFilter.between(since, lNow))
-
-                lStepsCount = healthClient!!.readRecords(lRequest)
-                    .records
-                    .sumOf { it.count }
-            }
-            catch (e: Exception)
-            {
-                Log.e("Steps", "Error trying to read steps: $e")
-            }
-
-            return lStepsCount
         }
     }
 }
