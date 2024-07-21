@@ -18,6 +18,7 @@ import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.unity3d.player.UnityPlayer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -39,7 +40,6 @@ class Plugin
             )
 
         private var activity: ComponentActivity? = null
-        private var healthClient: HealthConnectClient? = null
 
         public fun getAppContext(): Context
         {
@@ -59,7 +59,6 @@ class Plugin
             // Checks HealthConnect availability. If not installed but compatible with the device,
             // prompts the user to install it.
             if (HealthConnectClient.sdkStatus(getAppContext()) == HealthConnectClient.SDK_AVAILABLE) {
-                healthClient = HealthConnectClient.getOrCreate(getAppContext())
                 Log.i("Availability", "HealthConnect is installed!")
                 requestPermissions()
             }
@@ -76,23 +75,24 @@ class Plugin
 
         public fun getTodayStepsCount_ForUnity()
         {
-            getStepsCountSince (Instant.now().truncatedTo(ChronoUnit.DAYS)) { stepsCount ->
+            getStepsCountSince (getAppContext(), Instant.now().truncatedTo(ChronoUnit.DAYS)) { stepsCount ->
                 UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
             }
         }
 
-        public fun getStepsCountSince(since: Instant, callback: (Long) -> Unit)
+        //This method requires context as it may be used by external services
+        public fun getStepsCountSince(context: Context, since: Instant, callback: (Long) -> Unit)
         {
             try
             {
-                GlobalScope.launch(Dispatchers.Main)
+                CoroutineScope(Dispatchers.Main).launch()
                 {
                     val lNow = Instant.now()
                     val lRequest = ReadRecordsRequest(
                         StepsRecord::class,
                         TimeRangeFilter.between(since, lNow))
 
-                    val lStepsCount = healthClient!!.readRecords(lRequest)
+                    val lStepsCount = HealthConnectClient.getOrCreate(context)!!.readRecords(lRequest)
                         .records
                         .sumOf { it.count }
 
