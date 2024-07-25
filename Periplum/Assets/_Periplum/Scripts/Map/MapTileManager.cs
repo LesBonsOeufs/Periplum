@@ -9,13 +9,23 @@ namespace Periplum
     [RequireComponent(typeof(Grid))]
     public class MapTileManager : Singleton<MapTileManager>
     {
-        private readonly Vector2Int[] NEIGHBOR_DIRECTIONS = new Vector2Int[]
+        private readonly Vector2Int[] EVEN_NEIGHBOR_DIRECTIONS = new Vector2Int[]
         { 
             new Vector2Int(-1, 1),
             new Vector2Int(-1, 0),
             new Vector2Int(-1, -1),
             new Vector2Int(0, 1),
             new Vector2Int(0, -1),
+            new Vector2Int(1, 0),
+        };
+
+        private readonly Vector2Int[] ODD_NEIGHBOR_DIRECTIONS = new Vector2Int[]
+        {
+            new Vector2Int(0, 1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, -1),
+            new Vector2Int(1, 1),
+            new Vector2Int(1, -1),
             new Vector2Int(1, 0),
         };
 
@@ -39,13 +49,16 @@ namespace Periplum
             return catalog[grid.WorldToCell(pos)];
         }
 
-        public List<Vector3> Dijkstra(Vector3 origin, Vector3 target)
+        public List<Vector3> FindPath(Vector3 origin, Vector3 target)
         {
             Vector2Int lOriginCellPos = (Vector2Int)grid.WorldToCell(origin);
             Vector2Int lTargetCellPos = (Vector2Int)grid.WorldToCell(target);
 
             List<Vector2Int> lCellPath = SimpleDjikstra.Execute(lOriginCellPos, lTargetCellPos, GetNeighbors, TestWalkable);
             List<Vector3> lWorldPath = new ();
+
+            if (lCellPath == null)
+                return null;
 
             foreach (Vector2Int lCellPos in lCellPath)
                 lWorldPath.Add(grid.CellToWorld((Vector3Int)lCellPos));
@@ -59,10 +72,7 @@ namespace Periplum
             Vector2Int[] lNeighborPositions = GetNeighboringDirections(position);
 
             foreach (Vector2Int lCellPos in lNeighborPositions)
-            {
-                if (catalog.ContainsKey((Vector3Int)lCellPos))
-                    lNeighbors.Add(lCellPos);
-            }
+                lNeighbors.Add(lCellPos);
 
             return lNeighbors.ToArray();
         }
@@ -75,9 +85,12 @@ namespace Periplum
 
         private Vector2Int[] GetNeighboringDirections(Vector2Int pos)
         {
-            int lDirectionsLength = NEIGHBOR_DIRECTIONS.Length;
+            bool lIsEven = pos.y % 2 == 0;
+            Vector2Int[] lUsedArray = lIsEven ? EVEN_NEIGHBOR_DIRECTIONS : ODD_NEIGHBOR_DIRECTIONS;
+
+            int lDirectionsLength = lUsedArray.Length;
             Vector2Int[] lReturnedValue = new Vector2Int[lDirectionsLength];
-            Array.Copy(NEIGHBOR_DIRECTIONS, lReturnedValue, lDirectionsLength);
+            Array.Copy(lUsedArray, lReturnedValue, lDirectionsLength);
 
             for (int i = 0; i < lDirectionsLength; i++)
                 lReturnedValue[i] += pos;

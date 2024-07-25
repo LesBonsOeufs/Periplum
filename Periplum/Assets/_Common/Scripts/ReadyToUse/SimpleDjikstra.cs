@@ -6,32 +6,34 @@ public static class SimpleDjikstra
 {
     public static List<Vector2Int> Execute(Vector2Int origin, Vector2Int target, Func<Vector2Int, Vector2Int[]> getNeighborsFunc, Func<Vector2Int, bool> isWalkableFunc)
     {
-        List<PathTile> lTestedTiles = new() { new PathTile(origin, null) };
-        List<PathTile> lNextTilesToTest = new();
-        List<Vector2Int> lBannedPos = new();
+        if (!isWalkableFunc(target))
+            return null;
 
+        List<PathTile> lTilesToTest = new() { new PathTile(origin, null) };
+        List<PathTile> lNextTilesToTest = new();
+        List<Vector2Int> lVisitedTiles = new() { origin };
         PathTile lPathTile;
 
-        while (lTestedTiles.Count > 0)
+        while (lTilesToTest.Count > 0)
         {
-            for (int i = lTestedTiles.Count - 1; i >= 0; i--)
+            for (int i = 0; i < lTilesToTest.Count; i++)
             {
-                lPathTile = lTestedTiles[i];
+                lPathTile = lTilesToTest[i];
 
                 if (lPathTile.position == target)
                     return lPathTile.GetPath();
 
                 foreach (Vector2Int lNeighbor in getNeighborsFunc(lPathTile.position))
                 {
-                    if (!lBannedPos.Contains(lNeighbor))
+                    if (!lVisitedTiles.Contains(lNeighbor) && isWalkableFunc(lNeighbor))
+                    {
                         lNextTilesToTest.Add(new PathTile(lNeighbor, lPathTile));
+                        lVisitedTiles.Add(lNeighbor);
+                    }
                 }
-
-                lTestedTiles.Remove(lPathTile);
-                lBannedPos.Add(lPathTile.position);
             }
 
-            lTestedTiles = new(lNextTilesToTest);
+            lTilesToTest = new(lNextTilesToTest);
             lNextTilesToTest.Clear();
         }
 

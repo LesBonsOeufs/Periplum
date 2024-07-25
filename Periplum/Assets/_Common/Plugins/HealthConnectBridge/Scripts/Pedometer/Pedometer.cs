@@ -2,9 +2,11 @@ using NaughtyAttributes;
 using System;
 using UnityEngine;
 
-public delegate void PodometerEventHandler(Pedometer sender);
+public delegate void PedometerEventHandler(Pedometer sender);
 public class Pedometer : Singleton<Pedometer>
 {
+    public const float STEPS_PER_METERS = 1.31f;
+
     [SerializeField] private HealthConnectAARCaller healthConnect = default;
     [SerializeField] private bool runtimeUpdate = false;
     [SerializeField, ShowIf(nameof(runtimeUpdate))] private float updateFrequency = 10f;
@@ -14,7 +16,7 @@ public class Pedometer : Singleton<Pedometer>
     public int StepsCountSinceLast { get; private set; }
     public int TodayStepsCount { get; private set; }
 
-    public event PodometerEventHandler OnStepsUpdate;
+    public event PedometerEventHandler OnStepsUpdate;
 
     private void Start()
     {
@@ -36,6 +38,11 @@ public class Pedometer : Singleton<Pedometer>
     }
 
     public void RefreshStepsCount() => healthConnect.GetTodayStepsCount(OnStepsCountReceived);
+
+    /// <summary>
+    /// Starts the TargetStepsService, which updates the user on his progress towards target steps count, even if the app is closed, via a notification.
+    /// </summary>
+    public void StartStepsTracker(int targetSteps) => healthConnect.StartTargetStepsService(targetSteps);
 
     private void OnStepsCountReceived(int nSteps)
     {

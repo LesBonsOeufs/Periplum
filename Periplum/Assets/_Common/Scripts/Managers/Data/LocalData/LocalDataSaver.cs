@@ -97,9 +97,12 @@ public static class LocalDataSaver<T> where T : class, new()
             Debug.Log("Local Save Updated!");
     }
 
-	private static bool CheckIfSaveExists()
+	public static bool CheckIfSaveExists()
 	{
-		return File.Exists(saveFullPath);
+        if (saveFullPath == null)
+            InitPath();
+
+        return File.Exists(saveFullPath);
 	}
 
 	public static void ResetSave()
