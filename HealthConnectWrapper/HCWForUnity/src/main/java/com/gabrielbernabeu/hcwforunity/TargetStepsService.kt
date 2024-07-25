@@ -37,6 +37,7 @@ class TargetStepsService: Service()
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        kill()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
@@ -86,9 +87,7 @@ class TargetStepsService: Service()
                     .build()
 
                 (applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(2, lNotification)
-                handler.removeCallbacks(runnable)
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
+                kill()
             }
             else
             {
@@ -96,5 +95,12 @@ class TargetStepsService: Service()
                 handler.postDelayed(runnable, interval)
             }
         }
+    }
+
+    private fun kill()
+    {
+        handler.removeCallbacks(runnable)
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 }

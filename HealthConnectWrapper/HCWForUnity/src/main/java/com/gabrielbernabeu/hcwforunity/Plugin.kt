@@ -112,7 +112,11 @@ class Plugin
         public fun startTargetStepsService(targetSteps: Int)
         {
             if (TargetStepsService.isRunning)
-                return;
+            {
+                Intent(getAppContext(), TargetStepsService::class.java).also {
+                    activity!!.stopService(it)
+                }
+            }
 
             Intent(getAppContext(), TargetStepsService::class.java).also {
                 it.putExtra("target_steps", targetSteps)
