@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,8 @@ namespace Periplum
 {
     public class MapPlayer : MonoBehaviour
     {
+        [SerializeField] private LineRenderer pathRenderer;
+
         public MapTile CurrentTile
         {
             get => _currentTile;
@@ -31,7 +34,11 @@ namespace Periplum
                 Vector3 lMouseScreenPos = Mouse.current.position.ReadValue();
                 lMouseScreenPos.z = lDepthFromCamera;
                 Vector3 lMouseWorldPos = Camera.main.ScreenToWorldPoint(lMouseScreenPos);
-                CurrentTile = MapTileManager.Instance.GetTileFromPos(lMouseWorldPos);
+
+                List<Vector3> lPath = MapTileManager.Instance.Dijkstra(transform.position, lMouseWorldPos);
+                int lPathCount = lPath.Count;
+                pathRenderer.positionCount = lPathCount;
+                pathRenderer.SetPositions(lPath.ToArray());
             }
         }
     }
