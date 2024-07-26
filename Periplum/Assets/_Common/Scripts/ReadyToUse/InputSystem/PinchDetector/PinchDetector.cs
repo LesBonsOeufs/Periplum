@@ -9,9 +9,8 @@ namespace Periplum
         private PinchControls controls;
         private Coroutine zoomCoroutine;
 
-        public event Action OnPinchStart;
+        public event Action<bool> OnPinchActive;
         public event Action<float> OnPinchDistanceUpdate;
-        public event Action OnPinchStop;
 
         protected override void Awake()
         {
@@ -37,20 +36,19 @@ namespace Periplum
 
         private void StartZoom()
         {
-            OnPinchStart?.Invoke();
+            OnPinchActive?.Invoke(true);
             zoomCoroutine = StartCoroutine(ZoomDetection());
         }
 
         private void StopZoom()
         {
             StopCoroutine(zoomCoroutine);
-            OnPinchStop?.Invoke();
+            OnPinchActive?.Invoke(false);
         }
 
         private IEnumerator ZoomDetection()
         {
-            float lPreviousDistance = 0f;
-            float lDistance = 0f;
+            float lDistance;
 
             while (true)
             {
@@ -58,19 +56,6 @@ namespace Periplum
                     controls.Actions.SecondaryFingerPosition.ReadValue<Vector2>());
 
                 OnPinchDistanceUpdate?.Invoke(lDistance);
-
-                //Zoom out
-                if (lDistance > lPreviousDistance)
-                {
-                    
-                }
-                //Zoom in
-                else if (lDistance < lPreviousDistance)
-                {
-
-                }
-
-                lPreviousDistance = lDistance;
                 yield return null;
             }
         }

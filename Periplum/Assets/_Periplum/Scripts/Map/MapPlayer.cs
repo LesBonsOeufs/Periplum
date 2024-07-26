@@ -19,9 +19,17 @@ namespace Periplum
 
             private set
             {
+                if (_isPathComplete == value)
+                    return;
+
                 _isPathComplete = value;
                 remainingMetersTmp.gameObject.SetActive(!_isPathComplete);
-                currentTile.SetDetailable(value);
+                currentTile.IsDetailable = value;
+
+                if (_isPathComplete)
+                    currentTile.OnZoomActive += gameObject.SetActive;
+                else
+                    currentTile.OnZoomActive -= gameObject.SetActive;
             }
         }
         private bool _isPathComplete;
@@ -31,7 +39,6 @@ namespace Periplum
 
         private void Awake()
         {
-            remainingMetersTmp.gameObject.SetActive(false);
             Pedometer.Instance.OnStepsUpdate += Pedometer_OnStepsUpdate;
         }
 
