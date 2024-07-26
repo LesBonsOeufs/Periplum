@@ -53,11 +53,11 @@ namespace Periplum
 
         private void Update()
         {
-            if (Mouse.current.leftButton.wasPressedThisFrame)
+            if (Pointer.current.press.wasPressedThisFrame)
             {
                 Camera lCamera = Camera.main;
                 float lDepthFromCamera = Vector3.Project(transform.position - lCamera.transform.position, lCamera.transform.forward).magnitude;
-                Vector3 lMouseScreenPos = Mouse.current.position.ReadValue();
+                Vector3 lMouseScreenPos = Pointer.current.position.ReadValue();
                 lMouseScreenPos.z = lDepthFromCamera;
                 Vector3 lMouseWorldPos = Camera.main.ScreenToWorldPoint(lMouseScreenPos);
                 SetCurrentPath(lMouseWorldPos);
@@ -141,7 +141,7 @@ namespace Periplum
 
             int lTotalPathStepsDistance = Mathf.CeilToInt(GetTotalPathDistance() * STEPS_PER_UNIT);
             remainingMetersTmp.gameObject.SetActive(lTotalPathStepsDistance > 0f);
-            remainingMetersTmp.text = $"{Mathf.CeilToInt(lTotalPathStepsDistance / Pedometer.STEPS_PER_METERS)} meters remaining";
+            remainingMetersTmp.text = $"{lTotalPathStepsDistance} steps remaining";
 
             LocalDataSaver<LocalMapData>.CurrentData.position = path[0];
             LocalDataSaver<LocalMapData>.CurrentData.target = path[^1];
