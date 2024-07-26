@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 namespace Periplum
 {
@@ -14,19 +13,21 @@ namespace Periplum
         [SerializeField] private LineRenderer pathRenderer;
         [SerializeField] private TextMeshProUGUI remainingMetersTmp;
 
-        private List<Vector3> path;
-
-        public MapTile CurrentTile
+        public bool IsPathComplete
         {
-            get => _currentTile;
+            get => _isPathComplete;
 
-            set
-            { 
-                _currentTile = value;
-                transform.position = _currentTile.transform.position;
+            private set
+            {
+                _isPathComplete = value;
+                remainingMetersTmp.gameObject.SetActive(!_isPathComplete);
+                currentTile.SetDetailable(value);
             }
         }
-        private MapTile _currentTile;
+        private bool _isPathComplete;
+
+        private List<Vector3> path;
+        private MapTile currentTile;
 
         private void Awake()
         {
@@ -41,8 +42,6 @@ namespace Periplum
 
         private void Start()
         {
-            CurrentTile = MapTileManager.Instance.GetTileFromPos(transform.position);
-
             if (LocalDataSaver<LocalMapData>.CheckIfSaveExists())
             {
                 LocalMapData lData = LocalDataSaver<LocalMapData>.CurrentData;
@@ -94,7 +93,7 @@ namespace Periplum
         }
 
         [Button]
-        private void Test() => ProgressOnPath(10f * Time.deltaTime);
+        private void PathProgressTest() => ProgressOnPath(0.5f);
         private void ProgressOnPath(float progression)
         {
             if (path == null || path.Count == 1)
@@ -140,14 +139,15 @@ namespace Periplum
             transform.position = path[0];
 
             int lTotalPathStepsDistance = Mathf.CeilToInt(GetTotalPathDistance() * STEPS_PER_UNIT);
-            remainingMetersTmp.gameObject.SetActive(lTotalPathStepsDistance > 0f);
+            currentTile = MapTileManager.Instance.GetTileFromPos(transform.position);
+            IsPathComplete = lTotalPathStepsDistance == 0;
             remainingMetersTmp.text = $"{lTotalPathStepsDistance} steps remaining";
 
             LocalDataSaver<LocalMapData>.CurrentData.position = path[0];
             LocalDataSaver<LocalMapData>.CurrentData.target = path[^1];
             LocalDataSaver<LocalMapData>.SaveCurrentData();
 
-            if (lTotalPathStepsDistance > 0f)
+            if (!IsPathComplete)
                 Pedometer.Instance.StartStepsTracker(lTotalPathStepsDistance);
         }
 
