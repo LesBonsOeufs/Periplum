@@ -7,6 +7,9 @@ public class DetailsContentSpawner : MonoBehaviour
 
     private void Awake()
     {
+        if (detailsPrefab == null)
+            return;
+
         Instantiate(detailsPrefab, transform);
     }
 }
