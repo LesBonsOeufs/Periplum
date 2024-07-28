@@ -666,9 +666,9 @@ MonoBehaviour:
   FollowScale: 0
   FollowScaleFactor: 1
   Target: {fileID: 1423909041}
-  Offset: {x: 0, y: 0, z: 0}
-  AddInitialDistanceXToXOffset: 1
-  AddInitialDistanceYToYOffset: 1
+  Offset: {x: 0, y: 2.5, z: 0}
+  AddInitialDistanceXToXOffset: 0
+  AddInitialDistanceYToYOffset: 0
   AddInitialDistanceZToZOffset: 1
   InterpolatePosition: 1
   FollowPositionMode: 1

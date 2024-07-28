@@ -162,6 +162,9 @@ namespace Periplum
 
             if (!IsPathComplete)
                 Pedometer.Instance.StartStepsTracker(lTotalPathStepsDistance);
+            else
+                Pedometer.Instance.StopStepsTracker();
+
         }
 
         private float GetTotalPathDistance()

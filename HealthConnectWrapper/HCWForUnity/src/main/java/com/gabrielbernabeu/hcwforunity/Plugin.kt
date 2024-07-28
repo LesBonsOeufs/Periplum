@@ -21,6 +21,7 @@ import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -109,19 +110,27 @@ class Plugin
             }
         }
 
-        public fun startTargetStepsService(targetSteps: Int)
+        public fun startStepsTracker(targetSteps: Int, until: Instant? = null)
         {
-            if (TargetStepsService.isRunning)
-            {
-                Intent(getAppContext(), TargetStepsService::class.java).also {
-                    activity!!.stopService(it)
-                }
-            }
+            if (StepsTracker.isRunning)
+                killCurrentStepsTracker()
 
-            Intent(getAppContext(), TargetStepsService::class.java).also {
+            Intent(getAppContext(), StepsTracker::class.java).also {
+                val lNow = Instant.now()
                 it.putExtra("target_steps", targetSteps)
-                it.putExtra("since", Instant.now().toString())
+                it.putExtra("since", lNow.toString())
+
+                if (until != null && until > lNow)
+                    it.putExtra("until", until.toString())
+
                 activity!!.startService(it)
+            }
+        }
+
+        public fun killCurrentStepsTracker()
+        {
+            Intent(getAppContext(), StepsTracker::class.java).also {
+                activity!!.stopService(it)
             }
         }
 

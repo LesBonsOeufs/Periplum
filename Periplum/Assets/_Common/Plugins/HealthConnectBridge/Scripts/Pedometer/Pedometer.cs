@@ -40,9 +40,10 @@ public class Pedometer : Singleton<Pedometer>
     public void RefreshStepsCount() => healthConnect.GetTodayStepsCount(OnStepsCountReceived);
 
     /// <summary>
-    /// Starts the TargetStepsService, which updates the user on his progress towards target steps count, even if the app is closed, via a notification.
+    /// Starts the StepsTracker, which updates the user on his progress towards target steps count, even if the app is closed, via a notification.
     /// </summary>
-    public void StartStepsTracker(int targetSteps) => healthConnect.StartTargetStepsService(targetSteps);
+    public void StartStepsTracker(int targetSteps) => healthConnect.StartStepsTracker(targetSteps);
+    public void StopStepsTracker() => healthConnect.StopStepsTracker();
 
     private void OnStepsCountReceived(int nSteps)
     {
