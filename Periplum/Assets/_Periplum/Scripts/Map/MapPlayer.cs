@@ -27,11 +27,12 @@ namespace Periplum
                 currentTile.IsDetailable = value;
 
                 if (_isPathComplete)
-                    currentTile.OnZoomActive += gameObject.SetActive;
+                    currentTile.OnZoomActive += CurrentTile_OnZoomActive;
                 else
-                    currentTile.OnZoomActive -= gameObject.SetActive;
+                    currentTile.OnZoomActive -= CurrentTile_OnZoomActive;
             }
         }
+
         private bool _isPathComplete;
 
         private List<Vector3> path;
@@ -55,6 +56,11 @@ namespace Periplum
                 transform.position = lData.position;
                 SetCurrentPath(lData.target);
             }
+        }
+
+        private void CurrentTile_OnZoomActive(bool active)
+        {
+            gameObject.SetActive(!active);
         }
 
         private void Update()

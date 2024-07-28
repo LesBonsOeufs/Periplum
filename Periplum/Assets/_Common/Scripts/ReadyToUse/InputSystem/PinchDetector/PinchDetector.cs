@@ -10,7 +10,7 @@ namespace Periplum
         private Coroutine zoomCoroutine;
 
         public event Action<bool> OnPinchActive;
-        public event Action<float> OnPinchDistanceUpdate;
+        public event Action<float> OnPinchValueUpdate;
 
         protected override void Awake()
         {
@@ -48,14 +48,30 @@ namespace Periplum
 
         private IEnumerator ZoomDetection()
         {
+            float lStartDistance;
             float lDistance;
+            Vector2 lScreenSize = new(Screen.width, Screen.height);
+            Vector2 lPrimaryPos;
+            Vector2 lSecondaryPos;
+
+#if UNITY_EDITOR
+            lPrimaryPos = new Vector2(0f, 1f);
+#else
+            lPrimaryPos = controls.Actions.PrimaryFingerPosition.ReadValue<Vector2>() / lScreenSize;
+#endif
+            lSecondaryPos = controls.Actions.SecondaryFingerPosition.ReadValue<Vector2>() / lScreenSize;
+            lStartDistance = Vector2.Distance(lPrimaryPos, lSecondaryPos);
 
             while (true)
             {
-                lDistance = Vector2.Distance(controls.Actions.PrimaryFingerPosition.ReadValue<Vector2>(),
-                    controls.Actions.SecondaryFingerPosition.ReadValue<Vector2>());
+#if !UNITY_EDITOR
+                lPrimaryPos = controls.Actions.PrimaryFingerPosition.ReadValue<Vector2>() / lScreenSize;
+#endif
+                lSecondaryPos = controls.Actions.SecondaryFingerPosition.ReadValue<Vector2>() / lScreenSize;
+                lDistance = Vector2.Distance(lPrimaryPos, lSecondaryPos);
 
-                OnPinchDistanceUpdate?.Invoke(lDistance);
+                float lDistanceDelta = lDistance - lStartDistance;
+                OnPinchValueUpdate?.Invoke(lDistanceDelta);
                 yield return null;
             }
         }

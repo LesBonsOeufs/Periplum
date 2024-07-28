@@ -69,11 +69,33 @@ public partial class @PinchControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""6dbc48f3-dbd9-4984-9851-df2102706811"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""PC"",
+                    ""action"": ""SecondaryFingerPosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""3e41f7f0-db4f-4d0d-b0ad-6faac9dc234d"",
-                    ""path"": ""<Touchscreen>/touch0/press"",
+                    ""path"": ""<Touchscreen>/touch1/press"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Phone"",
+                    ""action"": ""SecondaryTouchContact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""40201957-095f-4608-b6ca-c09f43958ce7"",
+                    ""path"": ""<Keyboard>/#(P)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""PC"",
                     ""action"": ""SecondaryTouchContact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -99,6 +121,11 @@ public partial class @PinchControls: IInputActionCollection2, IDisposable
             ""devices"": [
                 {
                     ""devicePath"": ""<Mouse>"",
+                    ""isOptional"": false,
+                    ""isOR"": false
+                },
+                {
+                    ""devicePath"": ""<Keyboard>"",
                     ""isOptional"": false,
                     ""isOR"": false
                 }

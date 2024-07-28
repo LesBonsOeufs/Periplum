@@ -1,6 +1,8 @@
 using DG.Tweening;
+using NaughtyAttributes;
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Periplum
 {
@@ -9,9 +11,14 @@ namespace Periplum
         [SerializeField] private MapTileInfo info;
         [SerializeField] private SpriteRenderer tile;
         [SerializeField] private SpriteRenderer icon;
-        [SerializeField] private Color detailableColor;
+
+        [Foldout("DetailsView"), SerializeField, Scene] private int detailsScene;
+        
+        private IInOutAnim[] detailableElements;
 
         private float smoothDampVelocity;
+        private float targetZoom = 0f;
+
         private Vector3 cameraBasePos;
         private Vector3 tileCenteredCameraPos;
         private float cameraBaseSize;
@@ -27,23 +34,10 @@ namespace Periplum
                 else if (value < 0f)
                     value = 0f;
 
-                if (_zoom == 0f)
-                {
-                    OnZoomActive?.Invoke(true);
-                    cameraBasePos = Camera.main.transform.position;
-                    tileCenteredCameraPos = transform.position;
-                    tileCenteredCameraPos.z = cameraBasePos.z;
-                    cameraBaseSize = Camera.main.orthographicSize;
-                }
-
                 _zoom = value;
-
-                if (_zoom == 0f)
-                    OnZoomActive?.Invoke(false);
-
                 Camera lMainCamera = Camera.main;
                 lMainCamera.transform.position = Vector3.Lerp(cameraBasePos, tileCenteredCameraPos, Zoom);
-                Camera.main.orthographicSize = Mathf.Lerp(cameraBaseSize, 0.5f, Zoom);
+                Camera.main.orthographicSize = Mathf.Lerp(cameraBaseSize, .25f, Zoom);
             }
         }
         private float _zoom;
@@ -58,26 +52,86 @@ namespace Periplum
                     return;
 
                 _isDetailable = value;
-                tile.DOColor(_isDetailable ? detailableColor : Color.white, 0.25f);
+
+                if (detailableElements != null)
+                {
+                    foreach (IInOutAnim lElement in detailableElements)
+                    {
+                        if (_isDetailable)
+                            lElement.In();
+                        else
+                            lElement.Out();
+                    }
+                }
 
                 if (_isDetailable)
-                    PinchDetector.Instance.OnPinchDistanceUpdate += PinchDetector_OnPinchDistanceUpdate;
+                {
+                    PinchDetector.Instance.OnPinchActive += PinchDetector_OnPinchActive;
+                    PinchDetector.Instance.OnPinchValueUpdate += PinchDetector_OnPinchValueUpdate;
+                }
                 else
-                    PinchDetector.Instance.OnPinchDistanceUpdate -= PinchDetector_OnPinchDistanceUpdate;
+                {
+                    PinchDetector.Instance.OnPinchActive -= PinchDetector_OnPinchActive;
+                    PinchDetector.Instance.OnPinchValueUpdate -= PinchDetector_OnPinchValueUpdate;
+                }
             }
         }
+
         private bool _isDetailable;
 
         public event Action<bool> OnZoomActive;
 
-        private void PinchDetector_OnPinchDistanceUpdate(float obj)
+        private void Awake()
         {
-            Zoom = Mathf.SmoothDamp(_zoom, obj, ref smoothDampVelocity, 3f);
+            detailableElements = GetComponentsInChildren<IInOutAnim>(true);
+        }
 
-            //if (_zoom > zoomCap)
-            //{
-            //    //Big zoom anim + stop listening to pinch
-            //}
+        private void PinchDetector_OnPinchActive(bool active)
+        {
+            if (active)
+            {
+                cameraBasePos = Camera.main.transform.position;
+                tileCenteredCameraPos = transform.position;
+                tileCenteredCameraPos.z = cameraBasePos.z;
+                cameraBaseSize = Camera.main.orthographicSize;
+            }
+            else
+            {
+                if (targetZoom > ZoomHandler.ZOOM_CAP)
+                {
+                    ZoomToDetails();
+                    return;
+                }
+                else
+                    targetZoom = 0f;
+            }
+
+            OnZoomActive?.Invoke(active);
+        }
+
+        private void PinchDetector_OnPinchValueUpdate(float value)
+        {
+            targetZoom = value;
+        }
+
+        private void Update()
+        {
+            Zoom = Mathf.SmoothDamp(_zoom, targetZoom, ref smoothDampVelocity, 0.05f);
+        }
+
+        private void ZoomToDetails()
+        {
+            //Stop interactions
+            IsDetailable = false;
+
+            DOVirtual.Float(targetZoom, 1f, .25f, (value) =>
+            {
+                targetZoom = value;
+            }).OnComplete(() =>
+            {
+                DetailsContentSpawner.detailsPrefab = info.DetailsPrefab;
+                SceneManager.LoadScene(detailsScene);
+            });
         }
 
         private void OnValidate()
