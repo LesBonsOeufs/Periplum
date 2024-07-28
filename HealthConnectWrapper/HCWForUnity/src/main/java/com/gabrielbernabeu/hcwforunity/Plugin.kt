@@ -110,7 +110,12 @@ class Plugin
             }
         }
 
-        public fun startStepsTracker(targetSteps: Int, until: Instant? = null)
+        //Required for calling from Unity without until arg
+        public fun startStepsTracker(targetSteps: Int) {
+            startStepsTracker(targetSteps, null)
+        }
+
+        public fun startStepsTracker(targetSteps: Int, until: String? = null)
         {
             if (StepsTracker.isRunning)
                 killCurrentStepsTracker()
@@ -120,8 +125,8 @@ class Plugin
                 it.putExtra("target_steps", targetSteps)
                 it.putExtra("since", lNow.toString())
 
-                if (until != null && until > lNow)
-                    it.putExtra("until", until.toString())
+                if (until != null && Instant.parse(until) > lNow)
+                    it.putExtra("until", until)
 
                 activity!!.startService(it)
             }

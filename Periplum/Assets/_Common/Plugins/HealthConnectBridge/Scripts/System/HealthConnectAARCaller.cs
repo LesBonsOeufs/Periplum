@@ -42,7 +42,7 @@ public class HealthConnectAARCaller : AndroidAARCaller
     public void StopStepsTracker()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        pluginInstance.Call("killCurrentStepsTracker", targetSteps);
+        pluginInstance.Call("killCurrentStepsTracker");
 #endif
     }
 }
