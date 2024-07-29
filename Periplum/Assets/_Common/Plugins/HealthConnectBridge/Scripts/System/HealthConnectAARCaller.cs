@@ -32,10 +32,10 @@ public class HealthConnectAARCaller : AndroidAARCaller
 #endif
     }
 
-    public void StartStepsTracker(int targetSteps)
+    public void StartStepsTracker(int targetSteps, string until = null)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        pluginInstance.Call("startStepsTracker", targetSteps);
+        pluginInstance.Call("startStepsTracker", targetSteps, until);
 #endif
     }
 

@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import java.time.Instant
+import java.time.ZoneOffset
 
 class StepsTracker : Service()
 {
@@ -44,11 +45,16 @@ class StepsTracker : Service()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
     {
+        //All vars must be set here, as services can be re-used!
+        //Unset vars could keep information of the previous use of this service.
+
         targetSteps = intent!!.getIntExtra("target_steps", -1)
         since = Instant.parse(intent!!.getStringExtra("since"))
 
         if (intent!!.hasExtra("until"))
             until = Instant.parse(intent!!.getStringExtra("until"))
+        else
+            until = null
 
         refreshNotification(0)
 
@@ -66,9 +72,17 @@ class StepsTracker : Service()
     //Must be called at least once for foreground
     private fun refreshNotification(currentSteps: Int)
     {
+        var lContentText = "${targetSteps - currentSteps} remaining!"
+
+        if (until != null)
+        {
+            val lZonedUntil = until!!.atZone(ZoneOffset.UTC)
+            lContentText = lContentText.plus("\nYou have until ${lZonedUntil.hour}:${lZonedUntil.minute}")
+        }
+
         val lNotification =  NotificationCompat.Builder(applicationContext, "steps_channel")
             .setContentTitle("Counting steps...")
-            .setContentText("${targetSteps - currentSteps} remaining!")
+            .setContentText(lContentText)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setOnlyAlertOnce(true)
             .setOngoing(true)

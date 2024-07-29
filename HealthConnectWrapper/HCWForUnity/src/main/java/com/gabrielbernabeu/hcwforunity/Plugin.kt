@@ -95,8 +95,7 @@ class Plugin
                     val lStepsCount = HealthConnectClient.getOrCreate(context)!!.readRecords(lRequest)
                         .records
                         .sumOf { it.count }
-
-                    Log.i("Steps", "NSteps: $lStepsCount")
+                    
                     callback(lStepsCount)
                 }
             }
@@ -108,11 +107,6 @@ class Plugin
                 ).show()
                 e.printStackTrace()
             }
-        }
-
-        //Required for calling from Unity without until arg
-        public fun startStepsTracker(targetSteps: Int) {
-            startStepsTracker(targetSteps, null)
         }
 
         public fun startStepsTracker(targetSteps: Int, until: String? = null)

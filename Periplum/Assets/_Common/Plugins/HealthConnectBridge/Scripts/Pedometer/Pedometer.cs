@@ -1,5 +1,6 @@
 using NaughtyAttributes;
 using System;
+using System.Globalization;
 using UnityEngine;
 
 public delegate void PedometerEventHandler(Pedometer sender);
@@ -42,7 +43,8 @@ public class Pedometer : Singleton<Pedometer>
     /// <summary>
     /// Starts the StepsTracker, which updates the user on his progress towards target steps count, even if the app is closed, via a notification.
     /// </summary>
-    public void StartStepsTracker(int targetSteps) => healthConnect.StartStepsTracker(targetSteps);
+    public void StartStepsTracker(int targetSteps, DateTime? until = null) => 
+        healthConnect.StartStepsTracker(targetSteps, until?.ToString("o", CultureInfo.InvariantCulture));
     public void StopStepsTracker() => healthConnect.StopStepsTracker();
 
     private void OnStepsCountReceived(int nSteps)

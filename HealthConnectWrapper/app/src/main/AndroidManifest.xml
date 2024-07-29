@@ -26,7 +26,7 @@
             </intent-filter>
             <meta-data android:name="health_permissions" android:resource="@array/health_permissions" />
         </activity>
-        <service android:name="com.gabrielbernabeu.hcwforunity.TargetStepsService"
+        <service android:name="com.gabrielbernabeu.hcwforunity.StepsTracker"
                  android:process=":com.gabrielbernabeu.hcwforunity.externalProcess"/>
     </application>
 
