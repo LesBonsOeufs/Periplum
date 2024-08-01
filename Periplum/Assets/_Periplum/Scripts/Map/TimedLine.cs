@@ -1,22 +1,37 @@
+using NaughtyAttributes;
 using UnityEngine;
 
 namespace Periplum
 {
     public class TimedLine : MonoBehaviour
     {
-        [field: SerializeField] public MapTile StartTile { get; private set; }
-        [field: SerializeField] public MapTile EndTile { get; private set; }
+        [SerializeField] private MapTile startTile;
+        [SerializeField] private MapTile endTile;
+
+        [field: SerializeField] public int NMinutesLimit { get; private set; } = 15;
+        [ShowNativeProperty] public int StepsDistance { get; private set; }
+
+        /// <returns>Returns null if given tile is not start or end</returns>
+        public MapTile GetOther(MapTile tile)
+        {
+            if (tile == startTile)
+                return endTile;
+            else if (tile == endTile)
+                return startTile;
+            else
+                return null;
+        }
 
         private void OnValidate()
         {
-            if (StartTile == null || EndTile == null)
+            if (startTile == null || endTile == null)
                 return;
 
-            StartTile.SetTimedLine(this);
-            EndTile.SetTimedLine(this);
+            startTile.SetTimedLine(this);
+            endTile.SetTimedLine(this);
 
-            Vector3 lStartPos = StartTile.transform.position;
-            Vector3 lEndPos = EndTile.transform.position;
+            Vector3 lStartPos = startTile.transform.position;
+            Vector3 lEndPos = endTile.transform.position;
             Vector3 lStartToEnd = lEndPos - lStartPos;
 
             transform.SetPositionAndRotation(
@@ -24,6 +39,9 @@ namespace Periplum
                 Quaternion.FromToRotation(Vector3.right, lStartToEnd));
 
             transform.localScale = new Vector3(lStartToEnd.magnitude, transform.localScale.y, transform.localScale.z);
+
+            StepsDistance = 
+                Mathf.CeilToInt((endTile.transform.position - startTile.transform.position).magnitude * MapPlayer.STEPS_PER_UNIT);
         }
     }
 }

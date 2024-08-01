@@ -1115,6 +1115,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startTile: {fileID: 330213396}
   endTile: {fileID: 1197028772}
+  <NMinutesLimit>k__BackingField: 15
 --- !u!1 &880070108
 GameObject:
   m_ObjectHideFlags: 0

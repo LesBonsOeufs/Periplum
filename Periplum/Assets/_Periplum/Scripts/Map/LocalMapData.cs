@@ -12,5 +12,11 @@ public class LocalMapData
     {
         public DateTime timeLimit;
         public SerializableVector3 startPosition;
+
+        public TimedLine(DateTime timeLimit, SerializableVector3 startPosition)
+        {
+            this.timeLimit = timeLimit;
+            this.startPosition = startPosition;
+        }
     }
 }

@@ -78,8 +78,16 @@ namespace Periplum
 
         private void SetCurrentPath(Vector3 worldPosTarget)
         {
-            //Check if timedLine exists for current & target cell
-            //if (currentTile.TimedLine != null && currentTile.TimedLine.EndTile)
+            //Check if a timedLine joins current & target tiles
+            if (currentTile.TimedLine != null)
+            {
+                MapTile lOtherTile = currentTile.TimedLine.GetOther(currentTile);
+
+                if (lOtherTile == MapTileManager.Instance.GetTileFromPos(worldPosTarget) == lOtherTile)
+                {
+                    //LocalDataSaver<LocalMapData>.CurrentData.timedLine = new LocalMapData.TimedLine();
+                }
+            }
 
             List<Vector3> lPath = MapTileManager.Instance.FindPath(transform.position, worldPosTarget);
 
