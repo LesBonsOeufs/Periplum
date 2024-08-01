@@ -43,11 +43,6 @@ namespace Periplum
             Pedometer.Instance.OnStepsUpdate += Pedometer_OnStepsUpdate;
         }
 
-        private void Pedometer_OnStepsUpdate(Pedometer sender)
-        {
-            ProgressOnPath(sender.StepsCountSinceLast / STEPS_PER_UNIT);
-        }
-
         private void Start()
         {
             if (LocalDataSaver<LocalMapData>.CheckIfSaveExists())
@@ -56,6 +51,11 @@ namespace Periplum
                 transform.position = lData.position;
                 SetCurrentPath(lData.target);
             }
+        }
+
+        private void Pedometer_OnStepsUpdate(Pedometer sender)
+        {
+            ProgressOnPath(sender.StepsCountSinceLast / STEPS_PER_UNIT);
         }
 
         private void CurrentTile_OnZoomActive(bool active)
@@ -76,9 +76,12 @@ namespace Periplum
             }
         }
 
-        private void SetCurrentPath(Vector3 target)
+        private void SetCurrentPath(Vector3 worldPosTarget)
         {
-            List<Vector3> lPath = MapTileManager.Instance.FindPath(transform.position, target);
+            //Check if timedLine exists for current & target cell
+            //if (currentTile.TimedLine != null && currentTile.TimedLine.EndTile)
+
+            List<Vector3> lPath = MapTileManager.Instance.FindPath(transform.position, worldPosTarget);
 
             if (lPath == null)
             {
@@ -164,7 +167,6 @@ namespace Periplum
                 Pedometer.Instance.StartStepsTracker(lTotalPathStepsDistance);
             else
                 Pedometer.Instance.StopStepsTracker();
-
         }
 
         private float GetTotalPathDistance()

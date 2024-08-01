@@ -11,8 +11,10 @@ namespace Periplum
         [SerializeField] private MapTileInfo info;
         [SerializeField] private SpriteRenderer tile;
         [SerializeField] private SpriteRenderer icon;
-
+        
         [Foldout("DetailsView"), SerializeField, Scene] private int detailsScene;
+
+        [field: SerializeField, ReadOnly] public TimedLine TimedLine { get; private set; }
         
         private IInOutAnim[] detailableElements;
 
@@ -76,7 +78,6 @@ namespace Periplum
                 }
             }
         }
-
         private bool _isDetailable;
 
         public event Action<bool> OnZoomActive;
@@ -117,6 +118,11 @@ namespace Periplum
         private void Update()
         {
             Zoom = Mathf.SmoothDamp(_zoom, targetZoom, ref smoothDampVelocity, 0.05f);
+        }
+
+        public void SetTimedLine(TimedLine timedLine)
+        {
+            TimedLine = timedLine;
         }
 
         private void ZoomToDetails()
