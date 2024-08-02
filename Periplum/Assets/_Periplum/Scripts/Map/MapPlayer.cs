@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,10 @@ namespace Periplum
 
         [SerializeField] private LineRenderer pathRenderer;
         [SerializeField] private TextMeshProUGUI remainingMetersTmp;
+
+        private List<Vector3> path;
+        private MapTile currentTile;
+        private TimedLineData currentTimedLineData = null;
 
         public bool IsPathComplete
         {
@@ -27,16 +32,16 @@ namespace Periplum
                 currentTile.IsDetailable = value;
 
                 if (_isPathComplete)
+                {
+                    currentTimedLineData = null;
                     currentTile.OnZoomActive += CurrentTile_OnZoomActive;
+                }
                 else
                     currentTile.OnZoomActive -= CurrentTile_OnZoomActive;
             }
         }
 
         private bool _isPathComplete;
-
-        private List<Vector3> path;
-        private MapTile currentTile;
 
         private void Awake()
         {
@@ -48,8 +53,13 @@ namespace Periplum
             if (LocalDataSaver<LocalMapData>.CheckIfSaveExists())
             {
                 LocalMapData lData = LocalDataSaver<LocalMapData>.CurrentData;
+                currentTimedLineData = lData.timedLineData;
                 transform.position = lData.position;
-                SetCurrentPath(lData.target);
+
+                if (currentTimedLineData != null)
+                    InitTimedLinePath(lData.target);
+                else
+                    InitPath(lData.target);
             }
         }
 
@@ -65,43 +75,56 @@ namespace Periplum
 
         private void Update()
         {
-            if (Pointer.current.press.wasPressedThisFrame)
+            //Block path choice if committed on a timedLine
+            if (!(currentTimedLineData != null && currentTile == null) &&
+                Pointer.current.press.wasPressedThisFrame)
             {
                 Camera lCamera = Camera.main;
                 float lDepthFromCamera = Vector3.Project(transform.position - lCamera.transform.position, lCamera.transform.forward).magnitude;
                 Vector3 lMouseScreenPos = Pointer.current.position.ReadValue();
                 lMouseScreenPos.z = lDepthFromCamera;
                 Vector3 lMouseWorldPos = Camera.main.ScreenToWorldPoint(lMouseScreenPos);
-                SetCurrentPath(lMouseWorldPos);
+                ContextBasedInitPath(lMouseWorldPos);
             }
         }
 
-        private void SetCurrentPath(Vector3 worldPosTarget)
+        private void ContextBasedInitPath(Vector3 worldPosTarget)
         {
             //Check if a timedLine joins current & target tiles
-            if (currentTile.TimedLine != null)
+            if (currentTimedLineData == null &&
+                currentTile != null && currentTile.TimedLine != null &&
+                currentTile.TimedLine.GetOther(currentTile, out MapTile lOtherTile) &&
+                lOtherTile == MapTileManager.Instance.GetTileFromPos(worldPosTarget))
             {
-                MapTile lOtherTile = currentTile.TimedLine.GetOther(currentTile);
+                currentTimedLineData = new TimedLineData(
+                    DateTime.Now.AddMinutes(currentTile.TimedLine.NMinutesLimit),
+                    currentTile.transform.position);
 
-                if (lOtherTile == MapTileManager.Instance.GetTileFromPos(worldPosTarget) == lOtherTile)
-                {
-                    //LocalDataSaver<LocalMapData>.CurrentData.timedLine = new LocalMapData.TimedLine();
-                }
+                InitTimedLinePath(lOtherTile.transform.position);
             }
+            else
+                InitPath(worldPosTarget);
+        }
 
+        private void InitTimedLinePath(Vector3 worldPosTarget)
+        {
+            path = new List<Vector3>() { transform.position, worldPosTarget };
+            RefreshFromPath();
+        }
+
+        private void InitPath(Vector3 worldPosTarget)
+        {
             List<Vector3> lPath = MapTileManager.Instance.FindPath(transform.position, worldPosTarget);
 
             if (lPath == null)
-            {
                 return;
-            }
-            else if (lPath.Count == 1)
+
+            currentTimedLineData = null;
+
+            //Only partially on target tile
+            if (lPath.Count == 1)
             {
-                //Already on target tile, cancel current path
-                if (transform.position == lPath[0])
-                    path = null;
-                //Partially on target tile
-                else
+                if (transform.position != lPath[0])
                     lPath.Insert(0, transform.position);
             }
             else
@@ -126,7 +149,7 @@ namespace Periplum
             float lDistanceForNextPoint;
             Vector3 lToNextPoint;
 
-            while (progression > 0)
+            while (progression > 0 && path.Count > 1)
             {
                 lToNextPoint = path[1] - path[0];
                 lDistanceForNextPoint = lToNextPoint.magnitude;
@@ -144,13 +167,6 @@ namespace Periplum
                     path.RemoveAt(0);
                     progression = Mathf.Abs(lDistanceForNextPoint);
                 }
-
-                //Finished path
-                if (path.Count == 1)
-                {
-                    //OnCompletePath?.Invoke();
-                    break;
-                }
             }
 
             RefreshFromPath();
@@ -158,21 +174,29 @@ namespace Periplum
 
         private void RefreshFromPath()
         {
+            //Reset player to timedLine start
+            if (currentTimedLineData?.timeLimit <= DateTime.Now)
+            {
+                path = new List<Vector3>() { currentTimedLineData.startPosition };
+                currentTimedLineData = null;
+            }
+
             pathRenderer.positionCount = path.Count;
             pathRenderer.SetPositions(path.ToArray());
             transform.position = path[0];
+            TrySetCurrentTile();
 
             int lTotalPathStepsDistance = Mathf.CeilToInt(GetTotalPathDistance() * STEPS_PER_UNIT);
-            currentTile = MapTileManager.Instance.GetTileFromPos(transform.position);
             IsPathComplete = lTotalPathStepsDistance == 0;
             remainingMetersTmp.text = $"{lTotalPathStepsDistance} steps remaining";
 
+            LocalDataSaver<LocalMapData>.CurrentData.timedLineData = currentTimedLineData;
             LocalDataSaver<LocalMapData>.CurrentData.position = path[0];
             LocalDataSaver<LocalMapData>.CurrentData.target = path[^1];
             LocalDataSaver<LocalMapData>.SaveCurrentData();
 
             if (!IsPathComplete)
-                Pedometer.Instance.StartStepsTracker(lTotalPathStepsDistance);
+                Pedometer.Instance.StartStepsTracker(lTotalPathStepsDistance, currentTimedLineData?.timeLimit);
             else
                 Pedometer.Instance.StopStepsTracker();
         }
@@ -186,6 +210,19 @@ namespace Periplum
                 lTotalPathDistance += (path[i + 1] - path[i]).magnitude;
 
             return lTotalPathDistance;
+        }
+
+        /// <summary>
+        /// Current tile is only set if player is exactly on its position
+        /// </summary>
+        private void TrySetCurrentTile()
+        {
+            MapTile lTile = MapTileManager.Instance.GetTileFromPos(transform.position);
+
+            if (lTile != null && transform.position == lTile.transform.position)
+                currentTile = lTile;
+            else
+                currentTile = null;
         }
     }
 }

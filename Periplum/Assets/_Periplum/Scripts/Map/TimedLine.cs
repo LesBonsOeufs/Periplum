@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using System;
 using UnityEngine;
 
 namespace Periplum
@@ -9,17 +10,18 @@ namespace Periplum
         [SerializeField] private MapTile endTile;
 
         [field: SerializeField] public int NMinutesLimit { get; private set; } = 15;
-        [ShowNativeProperty] public int StepsDistance { get; private set; }
 
         /// <returns>Returns null if given tile is not start or end</returns>
-        public MapTile GetOther(MapTile tile)
+        public bool GetOther(MapTile tile, out MapTile other)
         {
             if (tile == startTile)
-                return endTile;
+                other = endTile;
             else if (tile == endTile)
-                return startTile;
+                other = startTile;
             else
-                return null;
+                other = null;
+
+            return other != null;
         }
 
         private void OnValidate()
@@ -39,9 +41,19 @@ namespace Periplum
                 Quaternion.FromToRotation(Vector3.right, lStartToEnd));
 
             transform.localScale = new Vector3(lStartToEnd.magnitude, transform.localScale.y, transform.localScale.z);
+        }
+    }
 
-            StepsDistance = 
-                Mathf.CeilToInt((endTile.transform.position - startTile.transform.position).magnitude * MapPlayer.STEPS_PER_UNIT);
+    [Serializable]
+    public class TimedLineData
+    {
+        public DateTime timeLimit;
+        public SerializableVector3 startPosition;
+
+        public TimedLineData(DateTime timeLimit, SerializableVector3 startPosition)
+        {
+            this.timeLimit = timeLimit;
+            this.startPosition = startPosition;
         }
     }
 }

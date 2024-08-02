@@ -3,6 +3,7 @@ using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Periplum
 {
@@ -44,9 +45,11 @@ namespace Periplum
                 catalog.Add(grid.WorldToCell(lMapTile.transform.position), lMapTile);
         }
 
+        /// <returns>Null if no tile on position</returns>
         public MapTile GetTileFromPos(Vector3 pos)
         {
-            return catalog[grid.WorldToCell(pos)];
+            catalog.TryGetValue(grid.WorldToCell(pos), out MapTile lMapTile);
+            return lMapTile;
         }
 
         public List<Vector3> FindPath(Vector3 origin, Vector3 target)

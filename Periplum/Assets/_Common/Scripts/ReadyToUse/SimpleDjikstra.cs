@@ -6,7 +6,7 @@ public static class SimpleDjikstra
 {
     public static List<Vector2Int> Execute(Vector2Int origin, Vector2Int target, Func<Vector2Int, Vector2Int[]> getNeighborsFunc, Func<Vector2Int, bool> isWalkableFunc)
     {
-        if (!isWalkableFunc(target))
+        if (!isWalkableFunc(origin) || !isWalkableFunc(target))
             return null;
 
         List<PathTile> lTilesToTest = new() { new PathTile(origin, null) };
