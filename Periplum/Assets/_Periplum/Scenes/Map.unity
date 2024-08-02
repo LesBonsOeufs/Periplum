@@ -214,7 +214,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 839507a257a597844b5c6b2661137265,
+      objectReference: {fileID: 21300000, guid: e744f17d55b2b614bbe6a717eba608b7,
         type: 3}
     - target: {fileID: 1777257261734801179, guid: 5d8f9795b3fd55546b9deb20852efff3,
         type: 3}
@@ -277,6 +277,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: f66b39776f91f04498ca0b4512d46e90,
         type: 2}
+    - target: {fileID: 6132153553137584594, guid: 5d8f9795b3fd55546b9deb20852efff3,
+        type: 3}
+      propertyPath: <TimedLine>k__BackingField
+      value: 
+      objectReference: {fileID: 701526746}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1706,7 +1711,7 @@ PrefabInstance:
         type: 3}
       propertyPath: info
       value: 
-      objectReference: {fileID: 11400000, guid: 2c720a2ccaed0b441896ff11547b49ed,
+      objectReference: {fileID: 11400000, guid: ff2b28b9a8c117e4e9937f1dab82a798,
         type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
