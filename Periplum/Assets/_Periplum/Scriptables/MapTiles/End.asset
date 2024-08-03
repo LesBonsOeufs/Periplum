@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 217e65e271d3c91448ffd7722be335ab, type: 3}
-  m_Name: Door
+  m_Name: End
   m_EditorClassIdentifier: 
-  <Icon>k__BackingField: {fileID: 21300000, guid: e744f17d55b2b614bbe6a717eba608b7,
+  <Icon>k__BackingField: {fileID: 21300000, guid: 696d6ad8dc4412446a63dfa3b0fe7e7f,
     type: 3}
-  <DetailsPrefab>k__BackingField: {fileID: 6532497861539854872, guid: 37c7d758f8a884f468d987536b298ccf,
+  <DetailsPrefab>k__BackingField: {fileID: 4039622235502486634, guid: 462c7ff89f7c72b4aa26f01b919137eb,
     type: 3}

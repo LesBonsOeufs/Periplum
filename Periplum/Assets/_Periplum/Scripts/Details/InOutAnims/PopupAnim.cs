@@ -4,6 +4,8 @@ using UnityEngine;
 public class PopupAnim : MonoBehaviour, IInOutAnim
 {
     [SerializeField] private float duration = 1f;
+    [SerializeField] private float delay = 0f;
+
     private float initEulerX;
 
     private void Awake()
@@ -18,8 +20,11 @@ public class PopupAnim : MonoBehaviour, IInOutAnim
     {
         Vector3 lEulerRotation = transform.localEulerAngles;
         lEulerRotation.x = initEulerX;
-        transform.DOLocalRotate(lEulerRotation, duration)
-            .SetEase(Ease.OutBack);
+
+        DOTween.Sequence(this)
+            .AppendInterval(delay)
+            .Append(transform.DOLocalRotate(lEulerRotation, duration)
+                .SetEase(Ease.OutBack));
     }
 
     public void Out()
