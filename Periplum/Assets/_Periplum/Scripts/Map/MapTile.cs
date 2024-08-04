@@ -65,16 +65,16 @@ namespace Periplum
         private void PinchDetector_OnPinchActive(bool active)
         {
             if (active)
-                MapZoomManager.Instance.SetZoomTargetPos(transform.position);
+                MapZoomHandler.Instance.SetZoomTargetPos(transform.position);
             else
             {
-                if (MapZoomManager.Instance.targetedZoom > ZoomHandler.ZOOM_CAP)
+                if (MapZoomHandler.Instance.targetedZoom > MapZoomHandler.ZOOM_CAP)
                 {
                     ZoomToDetails();
                     return;
                 }
-                else
-                    MapZoomManager.Instance.targetedZoom = 0f;
+
+                MapZoomHandler.Instance.targetedZoom = 0f;
             }
 
             OnZoomActive?.Invoke(active);
@@ -82,7 +82,7 @@ namespace Periplum
 
         private void PinchDetector_OnPinchValueUpdate(float value)
         {
-            MapZoomManager.Instance.targetedZoom = value;
+            MapZoomHandler.Instance.targetedZoom = value;
         }
 
         public void SetTimedLine(TimedLine timedLine)
@@ -96,7 +96,7 @@ namespace Periplum
             IsDetailable = false;
             DetailsContentSpawner.detailsPrefab = info.DetailsPrefab;
 
-            DOVirtual.Float(MapZoomManager.Instance.targetedZoom, 1f, .25f, (value) => MapZoomManager.Instance.targetedZoom = value)
+            DOVirtual.Float(MapZoomHandler.Instance.targetedZoom, 1f, .25f, (value) => MapZoomHandler.Instance.targetedZoom = value)
                 .OnComplete(() => SceneManager.LoadScene(detailsScene));
         }
 

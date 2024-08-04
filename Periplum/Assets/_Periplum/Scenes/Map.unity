@@ -2553,10 +2553,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1885526543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c481d5f70c0236a4fb970f14bfa1f512, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c6c7b3da1bf9764d81a403b019d1b2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 0
+  deactivateForZoom:
+  - {fileID: 520356718}
 --- !u!1001 &1962539765
 PrefabInstance:
   m_ObjectHideFlags: 0

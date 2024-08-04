@@ -1,43 +1,38 @@
-using System;
 using UnityEngine;
 
-public class MapZoomManager : Singleton<MapZoomManager>
+public class MapZoomHandler : ZoomHandler
 {
-    [NonSerialized] public float targetedZoom = 0f;
+    //Quick singleton
+    public static MapZoomHandler Instance { get; private set; }
+
+    public const float ZOOM_CAP = 0.35f;
 
     private Vector3 zoomTargetPos;
     private Vector3 cameraBasePos;
     private float cameraBaseSize;
-    private float smoothDampVelocity;
 
-    public float Zoom
-    {
-        get => _zoom;
+    public override float Zoom 
+    { 
+        get => base.Zoom;
 
-        private set
+        protected set
         {
-            if (_zoom == value)
+            if (Zoom == value)
                 return;
-            else if (value < 0f)
+            else if (value < 0.00001f)
                 value = 0f;
 
-            _zoom = value;
+            base.Zoom = value;
             Camera lMainCamera = Camera.main;
             lMainCamera.transform.position = Vector3.Lerp(cameraBasePos, zoomTargetPos, Zoom);
             Camera.main.orthographicSize = Mathf.Lerp(cameraBaseSize, .25f, Zoom);
         }
     }
-    private float _zoom;
 
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake();
+        Instance = this;
         cameraBaseSize = Camera.main.orthographicSize;
-    }
-
-    private void Update()
-    {
-        Zoom = Mathf.SmoothDamp(_zoom, targetedZoom, ref smoothDampVelocity, 0.05f);
     }
 
     public void SetZoomTargetPos(Vector3 pos)
