@@ -5,11 +5,11 @@ public class FadeAnim_Sprite : FadeAnim
 {
     private SpriteRenderer spriteRenderer;
 
-    protected override float Alpha 
+    public override float Alpha 
     { 
         get => spriteRenderer.color.a;
 
-        set
+        protected set
         {
             Color lColor = spriteRenderer.color;
             lColor.a = value;

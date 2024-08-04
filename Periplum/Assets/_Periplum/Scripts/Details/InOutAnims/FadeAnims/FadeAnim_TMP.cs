@@ -6,10 +6,10 @@ public class FadeAnim_TMP : FadeAnim
 {
     private TextMeshPro tmp;
 
-    protected override float Alpha 
+    public override float Alpha 
     { 
         get => tmp.alpha;
-        set => tmp.alpha = value;
+        protected set => tmp.alpha = value;
     }
 
     protected override void Awake()
