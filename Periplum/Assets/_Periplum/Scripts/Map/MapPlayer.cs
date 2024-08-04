@@ -92,7 +92,7 @@ namespace Periplum
         {
             //Check if a timedLine joins current & target tiles
             if (currentTimedLineData == null &&
-                currentTile != null && currentTile.TimedLine != null &&
+                currentTile != null && currentTile.TimedLine != null && currentTile.TimedLine.isActiveAndEnabled &&
                 currentTile.TimedLine.GetOther(currentTile, out MapTile lOtherTile) &&
                 lOtherTile == MapTileManager.Instance.GetTileFromPos(worldPosTarget))
             {

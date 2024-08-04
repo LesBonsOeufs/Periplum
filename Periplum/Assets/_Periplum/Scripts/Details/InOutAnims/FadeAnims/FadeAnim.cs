@@ -6,7 +6,7 @@ public abstract class FadeAnim : MonoBehaviour, IInOutAnim
     [SerializeField] private float duration = 0.5f;
     [SerializeField] private float delay = 0f;
 
-    public abstract float Alpha { get; protected set; }
+    public abstract float Alpha { get; set; }
 
     protected virtual void Awake()
     {

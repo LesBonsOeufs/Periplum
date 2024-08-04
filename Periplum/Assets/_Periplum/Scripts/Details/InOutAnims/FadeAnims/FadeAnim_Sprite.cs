@@ -9,7 +9,7 @@ public class FadeAnim_Sprite : FadeAnim
     { 
         get => spriteRenderer.color.a;
 
-        protected set
+        set
         {
             Color lColor = spriteRenderer.color;
             lColor.a = value;

@@ -1029,6 +1029,7 @@ GameObject:
   - component: {fileID: 701526744}
   - component: {fileID: 701526745}
   - component: {fileID: 701526746}
+  - component: {fileID: 701526747}
   m_Layer: 0
   m_Name: TimedLine
   m_TagString: Untagged
@@ -1121,6 +1122,40 @@ MonoBehaviour:
   startTile: {fileID: 330213396}
   endTile: {fileID: 1197028772}
   <NMinutesLimit>k__BackingField: 15
+--- !u!114 &701526747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701526743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7dede1698530ed459a10c57f0c24455, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onValueChange:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 701526743}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onUnlockedAtAwake:
+    m_PersistentCalls:
+      m_Calls: []
+  onUnlocked:
+    m_PersistentCalls:
+      m_Calls: []
+  linkedEvent: 0
 --- !u!1 &880070108
 GameObject:
   m_ObjectHideFlags: 0

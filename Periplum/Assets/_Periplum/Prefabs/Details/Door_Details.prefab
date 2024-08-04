@@ -606,6 +606,7 @@ GameObject:
   - component: {fileID: 4450284965657564349}
   - component: {fileID: 33188616594825059}
   - component: {fileID: 1405463164106578428}
+  - component: {fileID: 837081206808659689}
   m_Layer: 0
   m_Name: bear
   m_TagString: Untagged
@@ -706,6 +707,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c0afb3ff4d5e8d4899e2b2804fc6aed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scale: -0.1
+  onTap:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!61 &1405463164106578428
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -751,6 +756,55 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.3359375, y: 2.4375}
   m_EdgeRadius: 0
+--- !u!114 &837081206808659689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6098515476019829504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7dede1698530ed459a10c57f0c24455, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onValueChange:
+    m_PersistentCalls:
+      m_Calls: []
+  onUnlockedAtAwake:
+    m_PersistentCalls:
+      m_Calls: []
+  onUnlocked:
+    m_PersistentCalls:
+      m_Calls: []
+  linkedEvent: 0
+  onValueChange_Inverted:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6098515476019829504}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 6787474203607358896}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6303922827388266269
 GameObject:
   m_ObjectHideFlags: 0

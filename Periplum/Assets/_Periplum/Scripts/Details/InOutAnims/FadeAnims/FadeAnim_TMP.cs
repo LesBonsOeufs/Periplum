@@ -9,7 +9,7 @@ public class FadeAnim_TMP : FadeAnim
     public override float Alpha 
     { 
         get => tmp.alpha;
-        protected set => tmp.alpha = value;
+        set => tmp.alpha = value;
     }
 
     protected override void Awake()
