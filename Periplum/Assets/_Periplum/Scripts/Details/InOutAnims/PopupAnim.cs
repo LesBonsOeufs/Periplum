@@ -5,6 +5,7 @@ public class PopupAnim : MonoBehaviour, IInOutAnim
 {
     [SerializeField] private float duration = 1f;
     [SerializeField] private float delay = 0f;
+    [SerializeField] private float outValue = -90f;
 
     private float initEulerX;
 
@@ -30,7 +31,7 @@ public class PopupAnim : MonoBehaviour, IInOutAnim
     public void Out()
     {
         Vector3 lEulerRotation = transform.localEulerAngles;
-        lEulerRotation.x = -90f;
+        lEulerRotation.x = outValue;
         transform.DOLocalRotate(lEulerRotation, duration);
     }
 }

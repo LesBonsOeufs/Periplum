@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 namespace Periplum
@@ -7,6 +8,8 @@ namespace Periplum
     {
         [SerializeField] private MapTile startTile;
         [SerializeField] private MapTile endTile;
+        [Space]
+        [SerializeField] private new Transform renderer;
 
         [field: SerializeField] public int NMinutesLimit { get; private set; } = 15;
 
@@ -35,11 +38,9 @@ namespace Periplum
             Vector3 lEndPos = endTile.transform.position;
             Vector3 lStartToEnd = lEndPos - lStartPos;
 
-            transform.SetPositionAndRotation(
-                (lStartPos + lEndPos) * 0.5f, 
-                Quaternion.FromToRotation(Vector3.right, lStartToEnd));
-
-            transform.localScale = new Vector3(lStartToEnd.magnitude, transform.localScale.y, transform.localScale.z);
+            transform.position = (lStartPos + lEndPos) * 0.5f;
+            renderer.rotation = Quaternion.FromToRotation(Vector3.right, lStartToEnd);
+            renderer.localScale = new Vector3(lStartToEnd.magnitude, renderer.localScale.y, renderer.localScale.z);
         }
     }
 

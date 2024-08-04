@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Icon>k__BackingField: {fileID: 21300000, guid: f117218cf481aec44870145c3beb8b63,
     type: 3}
+  <TileDetailablesPrefab>k__BackingField: {fileID: 5936788216958497116, guid: 3a2aa5cbafb7b2643bee5b0874187b2d,
+    type: 3}
   <DetailsPrefab>k__BackingField: {fileID: 5978032973945741138, guid: 7b9a9338517b0b840806e07c9050e24e,
     type: 3}

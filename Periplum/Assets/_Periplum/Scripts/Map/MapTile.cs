@@ -11,6 +11,7 @@ namespace Periplum
         [SerializeField] private MapTileInfo info;
         [SerializeField] private SpriteRenderer tile;
         [SerializeField] private SpriteRenderer icon;
+        [SerializeField] private Transform detailablesContainer;
 
         [Foldout("DetailsView"), SerializeField, Scene] private int detailsScene;
 
@@ -59,7 +60,8 @@ namespace Periplum
 
         private void Awake()
         {
-            detailableElements = GetComponentsInChildren<IInOutAnim>(true);
+            Instantiate(info.TileDetailablesPrefab, detailablesContainer);
+            detailableElements = detailablesContainer.GetComponentsInChildren<IInOutAnim>(true);
         }
 
         private void PinchDetector_OnPinchActive(bool active)

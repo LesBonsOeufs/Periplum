@@ -1,3 +1,4 @@
+using DG.Tweening;
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,10 @@ namespace Periplum
         public const float STEPS_PER_UNIT = 200f;
 
         [SerializeField] private LineRenderer pathRenderer;
+        [SerializeField] private TextMeshProUGUI timeLimitTmp;
         [SerializeField] private TextMeshProUGUI remainingMetersTmp;
+
+        private Tween timeLimitTween;
 
         private List<Vector3> path;
         private MapTile currentTile;
@@ -28,7 +32,6 @@ namespace Periplum
                     return;
 
                 _isPathComplete = value;
-                remainingMetersTmp.gameObject.SetActive(!_isPathComplete);
                 currentTile.IsDetailable = value;
 
                 if (_isPathComplete)
@@ -46,6 +49,8 @@ namespace Periplum
         private void Awake()
         {
             Pedometer.Instance.OnStepsUpdate += Pedometer_OnStepsUpdate;
+            timeLimitTmp.transform.parent.localScale = Vector3.zero;
+            timeLimitTmp.transform.parent.gameObject.SetActive(false);
         }
 
         private void Start()
@@ -73,8 +78,43 @@ namespace Periplum
             gameObject.SetActive(!active);
         }
 
+        public void ShowTimeLimit(int limit = -1)
+        {
+            Transform lCanvasContainer = timeLimitTmp.transform.parent;
+            timeLimitTmp.text = $"Finish within {limit}mn!";
+
+            if (timeLimitTween.IsActive())
+                return;
+
+            if (limit == -1)
+            {
+                if (lCanvasContainer.gameObject.activeSelf)
+                {
+                    timeLimitTween = lCanvasContainer.DOScale(0f, 0.5f)
+                        .OnComplete(() => lCanvasContainer.gameObject.SetActive(false));
+                }
+
+                return;
+            }
+
+            if (!lCanvasContainer.gameObject.activeSelf)
+            {
+                lCanvasContainer.gameObject.SetActive(true);
+                timeLimitTween = lCanvasContainer.DOScale(1f, 0.5f);
+            }
+        }
+
         private void Update()
         {
+            //VERY quick & dirty
+            if (currentTimedLineData != null)
+            {
+                float lMinutesRemaining = (float)(currentTimedLineData.timeLimit - DateTime.Now).TotalMinutes;
+                ShowTimeLimit(Mathf.CeilToInt(lMinutesRemaining));
+            }
+            else
+                ShowTimeLimit(-1);
+
             //Block path choice if committed on a timedLine
             if (!(currentTimedLineData != null && currentTile == null) &&
                 Pointer.current.press.wasPressedThisFrame)
@@ -174,11 +214,16 @@ namespace Periplum
 
         private void RefreshFromPath()
         {
-            //Reset player to timedLine start
-            if (currentTimedLineData?.timeLimit <= DateTime.Now)
+            if (currentTimedLineData != null)
             {
-                path = new List<Vector3>() { currentTimedLineData.startPosition };
-                currentTimedLineData = null;
+                timeLimitTmp.transform.parent.position = path[^1];
+
+                //Reset player to timedLine's start
+                if (currentTimedLineData.timeLimit <= DateTime.Now)
+                {
+                    path = new List<Vector3>() { currentTimedLineData.startPosition };
+                    currentTimedLineData = null;
+                }
             }
 
             pathRenderer.positionCount = path.Count;
@@ -188,7 +233,8 @@ namespace Periplum
 
             int lTotalPathStepsDistance = Mathf.CeilToInt(GetTotalPathDistance() * STEPS_PER_UNIT);
             IsPathComplete = lTotalPathStepsDistance == 0;
-            remainingMetersTmp.text = $"{lTotalPathStepsDistance} steps remaining";
+            remainingMetersTmp.text = IsPathComplete ? "Zoom to inspect" :
+                $"{lTotalPathStepsDistance} steps remaining";
 
             LocalDataSaver<LocalMapData>.CurrentData.timedLineData = currentTimedLineData;
             LocalDataSaver<LocalMapData>.CurrentData.position = path[0];
