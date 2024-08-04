@@ -70,7 +70,7 @@ namespace Periplum
                 MapZoomHandler.Instance.SetZoomTargetPos(transform.position);
             else
             {
-                if (MapZoomHandler.Instance.targetedZoom > MapZoomHandler.ZOOM_CAP)
+                if (MapZoomHandler.Instance.targetedZoom > ZoomHandler.ZOOM_CAP)
                 {
                     ZoomToDetails();
                     return;

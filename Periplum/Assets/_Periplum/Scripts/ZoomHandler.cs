@@ -3,6 +3,8 @@ using UnityEngine;
 
 public abstract class ZoomHandler : MonoBehaviour
 {
+    public const float ZOOM_CAP = 0.25f;
+
     [SerializeField] private MonoBehaviour[] deactivateForZoom;
 
     [NonSerialized] public float targetedZoom = 0f;

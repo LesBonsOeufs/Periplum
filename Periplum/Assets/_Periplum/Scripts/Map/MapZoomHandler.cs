@@ -5,8 +5,6 @@ public class MapZoomHandler : ZoomHandler
     //Quick singleton
     public static MapZoomHandler Instance { get; private set; }
 
-    public const float ZOOM_CAP = 0.35f;
-
     private Vector3 zoomTargetPos;
     private Vector3 cameraBasePos;
     private float cameraBaseSize;

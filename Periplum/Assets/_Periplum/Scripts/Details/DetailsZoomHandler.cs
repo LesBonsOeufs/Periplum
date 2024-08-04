@@ -38,7 +38,7 @@ namespace Periplum
         {
             if (!active)
             {
-                if (targetedZoom < -MapZoomHandler.ZOOM_CAP)
+                if (targetedZoom < -ZOOM_CAP)
                 {
                     ZoomToMap();
                     return;

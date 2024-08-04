@@ -66,6 +66,12 @@ namespace Periplum
                 else
                     InitPath(lData.target);
             }
+            else
+            {
+                //Clamp to grid
+                transform.position = MapTileManager.Instance.GetTileFromPos(transform.position).transform.position;
+                InitPath(transform.position);
+            }
         }
 
         private void Pedometer_OnStepsUpdate(Pedometer sender)
