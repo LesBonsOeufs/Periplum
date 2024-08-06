@@ -72,16 +72,16 @@ class StepsTracker : Service()
     //Must be called at least once for foreground
     private fun refreshNotification(currentSteps: Int)
     {
-        var lContentText = "${targetSteps - currentSteps} remaining!"
+        var lContentText = ""
 
         if (until != null)
         {
             val lZonedUntil = until!!.atZone(ZoneOffset.UTC)
-            lContentText = lContentText.plus("\nYou have until ${lZonedUntil.hour}:${lZonedUntil.minute}")
+            lContentText = "You have until ${lZonedUntil.hour}:${lZonedUntil.minute}"
         }
 
         val lNotification =  NotificationCompat.Builder(applicationContext, "steps_channel")
-            .setContentTitle("Counting steps...")
+            .setContentTitle("${targetSteps - currentSteps} steps remaining")
             .setContentText(lContentText)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setOnlyAlertOnce(true)
@@ -116,7 +116,7 @@ class StepsTracker : Service()
     {
         val lNotification = NotificationCompat.Builder(applicationContext, "steps_channel")
             .setContentTitle("Congratulations!")
-            .setContentText("You have reached your next point!")
+            .setContentText("You have reached your next point")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .build()
 
@@ -128,7 +128,7 @@ class StepsTracker : Service()
     {
         val lNotification = NotificationCompat.Builder(applicationContext, "steps_channel")
             .setContentTitle("Failed")
-            .setContentText("You didn't reached your goal in time!")
+            .setContentText("You didn't reach your goal in time")
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .build()
 
