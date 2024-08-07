@@ -87,7 +87,9 @@ namespace Periplum
         public void ShowTimeLimit(int limit = -1)
         {
             Transform lCanvasContainer = timeLimitTmp.transform.parent;
-            timeLimitTmp.text = $"Finish within {limit}mn!";
+
+            if (limit != -1)
+                timeLimitTmp.text = $"Finish within {limit}mn!";
 
             if (timeLimitTween.IsActive())
                 return;
