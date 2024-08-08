@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- <uses-permission android:name="android.permission.health.READ_STEPS"/> -->
+
+    <!-- For Android >= 14 -->
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+
+    <!-- For Android < 14, in <activity> -->
+        <meta-data
+            android:name="health_permissions"
+            android:resource="@array/health_permissions"/>
 
     <!-- Check whether Health connect is installed or not -->
     <queries>
-        <package android:name="com.google.android.apps.healthdata" />
+        <package android:name="com.google.android.apps.healthdata"/>
     </queries>
 
 </manifest>

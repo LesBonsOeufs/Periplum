@@ -4,6 +4,8 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -19,7 +21,7 @@ class StepsTracker : Service()
     }
 
     //Milliseconds
-    private val interval: Long = 60000
+    private val interval: Long = 1000
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
 
@@ -88,7 +90,10 @@ class StepsTracker : Service()
             .setOngoing(true)
             .build()
 
-        startForeground(1, lNotification)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            startForeground(1, lNotification)
+        else
+            startForeground(1, lNotification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
     }
 
     private fun checkTargetSteps()
@@ -102,13 +107,18 @@ class StepsTracker : Service()
         Plugin.getStepsCountSince(applicationContext, since)
         { stepsCount ->
 
-            if (stepsCount >= targetSteps)
-                successComplete()
-            else
+            if (stepsCount != -1L)
             {
-                refreshNotification(stepsCount.toInt())
-                handler.postDelayed(runnable, interval)
+                if (stepsCount >= targetSteps)
+                {
+                    successComplete()
+                    return@getStepsCountSince
+                }
+                else
+                    refreshNotification(stepsCount.toInt())
             }
+
+            handler.postDelayed(runnable, interval)
         }
     }
 

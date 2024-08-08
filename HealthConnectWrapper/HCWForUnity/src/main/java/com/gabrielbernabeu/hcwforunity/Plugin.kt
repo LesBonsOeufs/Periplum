@@ -21,7 +21,6 @@ import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -58,7 +57,7 @@ class Plugin
         {
             // Checks HealthConnect availability. If not installed but compatible with the device,
             // prompts the user to install it.
-            if (HealthConnectClient.sdkStatus(getAppContext()) == HealthConnectClient.SDK_AVAILABLE) {
+            if (HealthConnectClient.getSdkStatus(getAppContext()) == HealthConnectClient.SDK_AVAILABLE) {
                 Log.i("Availability", "HealthConnect is installed!")
                 requestPermissions()
             }
@@ -75,8 +74,10 @@ class Plugin
 
         public fun getTodayStepsCount_ForUnity()
         {
-            getStepsCountSince (getAppContext(), Instant.now().truncatedTo(ChronoUnit.DAYS)) { stepsCount ->
-                UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
+            getStepsCountSince (getAppContext(), Instant.now().truncatedTo(ChronoUnit.DAYS))
+            { stepsCount ->
+                if (stepsCount != -1L)
+                    UnityPlayer.UnitySendMessage("AARCaller", "ReceiveTodayStepsCount", stepsCount.toString())
             }
         }
 
@@ -87,15 +88,27 @@ class Plugin
             {
                 CoroutineScope(Dispatchers.Main).launch()
                 {
+                    val lHasHealthPermissions = HealthConnectClient.getOrCreate(context)
+                        .permissionController
+                        .getGrantedPermissions()
+                        .containsAll(healthPermissions)
+
+                    if (!lHasHealthPermissions)
+                    {
+                        Log.w("Steps retrieval", "You do not have the required permissions")
+                        callback(-1)
+                        return@launch
+                    }
+
                     val lNow = Instant.now()
                     val lRequest = ReadRecordsRequest(
                         StepsRecord::class,
                         TimeRangeFilter.between(since, lNow))
 
-                    val lStepsCount = HealthConnectClient.getOrCreate(context)!!.readRecords(lRequest)
+                    val lStepsCount = HealthConnectClient.getOrCreate(context).readRecords(lRequest)
                         .records
                         .sumOf { it.count }
-                    
+
                     callback(lStepsCount)
                 }
             }
@@ -106,6 +119,8 @@ class Plugin
                     Toast.LENGTH_LONG
                 ).show()
                 e.printStackTrace()
+
+                callback(-1)
             }
         }
 
@@ -159,9 +174,6 @@ class Plugin
 
         private fun requestPermissions()
         {
-            //Android permissions
-            ActivityCompat.requestPermissions(activity!!, permissions, 0)
-
             //Health Connect permissions
             val lRequestPermissionActivityContract = PermissionController.createRequestPermissionResultContract()
 
@@ -170,8 +182,11 @@ class Plugin
             ) { granted ->
                 if (granted.containsAll(healthPermissions)) {
                     Log.i("Permissions", "All health permissions granted!")
+                    ActivityCompat.requestPermissions(activity!!, permissions, 0)
                 } else {
                     Log.e("Permissions", "Some health permissions denied!")
+                    //Android permissions
+                    ActivityCompat.finishAffinity(activity!!)
                 }
             }
 

@@ -3,23 +3,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.unity3d.player"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<uses-permission android:name="android.permission.health.READ_STEPS"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        android:minSdkVersion="34" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application>
         <activity android:name="com.gabrielbernabeu.hcwforunity.UnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">
-            <intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+				<!-- Android < 14 -->
 				<action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+				<!-- Android >= 14 -->
+				<action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/>
+				<category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
+			</intent-filter>
 			<meta-data android:name="health_permissions" android:resource="@array/health_permissions" />
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
-        <service android:name="com.gabrielbernabeu.hcwforunity.StepsTracker"
-				 android:process=":com.gabrielbernabeu.hcwforunity.externalProcess"/>
-    </application>
+		<service android:name="com.gabrielbernabeu.hcwforunity.StepsTracker"
+                 android:process=":com.gabrielbernabeu.hcwforunity.externalProcess"
+                 android:foregroundServiceType="dataSync" />
+	</application>
 
 	<!-- Check whether Health connect is installed or not -->
 	<queries>
