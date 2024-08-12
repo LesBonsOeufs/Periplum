@@ -21,7 +21,7 @@ class StepsTracker : Service()
     }
 
     //Milliseconds
-    private val interval: Long = 1000
+    private val interval: Long = 60000
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
 
